@@ -1,0 +1,19 @@
+# Entity type -> sprite frames for each art pack. Anything a pack does not list is drawn procedurally
+# in the same 16x16 pixel style (see signalsearch/viz/assets.py). Both packs are CC0.
+"0x72":
+  dir: 0x72_DungeonTilesetII_v1.7/frames
+  floor: [floor_1.png, floor_1.png, floor_1.png, floor_2.png, floor_3.png, floor_4.png, floor_5.png, floor_6.png, floor_7.png, floor_8.png]
+  wall: [wall_mid.png]
+  wall_top: [wall_top_mid.png]
+  knight_m: [knight_m_idle_anim_f0.png, knight_m_idle_anim_f1.png, knight_m_idle_anim_f2.png, knight_m_idle_anim_f3.png]
+  knight_f: [knight_f_idle_anim_f0.png, knight_f_idle_anim_f1.png, knight_f_idle_anim_f2.png, knight_f_idle_anim_f3.png]
+  princess: [elf_f_idle_anim_f0.png, elf_f_idle_anim_f1.png, elf_f_idle_anim_f2.png, elf_f_idle_anim_f3.png]
+  prince: [elf_m_idle_anim_f0.png, elf_m_idle_anim_f1.png, elf_m_idle_anim_f2.png, elf_m_idle_anim_f3.png]
+kenney:
+  dir: kenney_tiny_dungeon/Tiles
+  floor: [tile_0048.png, tile_0048.png, tile_0048.png, tile_0049.png, tile_0042.png]
+  wall: [tile_0040.png]
+  knight_m: [tile_0096.png]
+  knight_f: [tile_0097.png]
+  princess: [tile_0099.png]
+  prince: [tile_0088.png]

@@ -1,0 +1,18 @@
+# Hard preset: Vellore heat (ambient close to body temperature, so thermal contrast is weak and a dog
+# at ~38 C almost vanishes), more decoys, and a tighter life budget.
+extends: default.yaml
+world:
+  weather:
+    location: vellore
+  entities:
+    torches: [5, 7]
+    armour: [3, 4]
+    dogs: [2, 3]
+  target:
+    k: 1.2
+agent_assumed:
+  signature_counts:
+    dog: 2.5
+    torch: 6.0
+    armour: 3.5
+    hearth: 3.5

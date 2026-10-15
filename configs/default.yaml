@@ -1,0 +1,153 @@
+# Default mission (Bangalore weather). Every tunable lives here; other presets `extends:` this file.
+# Two strictly separated sections matter for the information boundary:
+#   world:          ground truth + generator settings + TRUE sensor specs (agent never sees this)
+#   agent_assumed:  what the agent believes; filled at resolve time from world specs x random factor
+seed: 7
+max_steps: 2000                 # hard backstop on episode length
+
+world:
+  map:
+    size: 100                   # cells per side (1 cell = 1 m), outer wall on the border
+    min_room: 7                 # BSP never makes a room narrower than this
+    max_room: 20                # leaves bigger than this are always split
+    courtyards: [1, 2]          # number of large undivided courtyards (min, max)
+    courtyard_min: 18           # courtyard side length lower bound
+    doors_per_wall: [1, 2]      # door gaps punched in each BSP wall (min, max)...
+    door_every: 15              # ...plus one extra door per this many cells of wall length
+    door_width: [1, 2]
+    rubble: 0.004               # fraction of floor cells turned into rubble (single wall cells)
+  spawn:
+    min_dist: 40                # Manhattan distance rescuer <-> target at t=0
+    max_dist: 140
+  entities:
+    hearths: [3, 4]             # total incl. the one at the rescuer's spawn
+    torches: [4, 6]
+    armour: [2, 3]
+    dogs: [1, 2]
+  temps:                        # true surface temperatures, deg C
+    human: 34.0
+    dog: 38.0
+    torch: 320.0
+    hearth: 520.0
+  dog:
+    p_move: 0.7
+  target:
+    p0: 0.3                     # p_move = p0 * energy
+    k: 1.3                      # life_turns = round(k * T_expected)
+    drain_multiplier: 1.0       # scales the per-turn drain d
+    drain_fudge: 1.15           # d = 1 / (drain_fudge * life_turns)
+    room_bias: 3.0              # weight for staying in the current room vs 1.0 for leaving
+  signal:
+    max_age: 30                 # distress call emitted 0..max_age turns before t=0
+    bearing_noise_deg: 25.0     # uniform +-
+    d0: 30.0                    # strength = 1 / (1 + (d/d0)^2) * lognormal noise
+    strength_noise: 0.25        # sigma of log-strength noise
+  sensors:
+    lidar:
+      range: 10.0
+      p_shape: 0.9              # chance an entity in view produces a shape blob
+      shape_confusion: 0.1      # chance the shape is reported wrong (humanoid <-> small)
+      humidity_loss: 0.0015     # range *= 1 - humidity_loss*RH - rain_loss*rain_mm
+      rain_loss: 0.04
+    radar:
+      range: 20.0
+      p_detect: 0.9
+      wall_atten: 0.92          # detection prob multiplied per wall crossed
+      pos_noise: 2              # uniform +- cells per axis
+      false_alarm: 0.03         # chance per scan of one spurious heartbeat
+    thermal:
+      range: 50.0
+      contrast_ref: 4.0         # intensity = c / (c + contrast_ref), c = |T - ambient|
+      d0: 20.0                  # falloff = 1 / (1 + (d/d0)^2)
+      wall_factor: 0.6          # signal *= wall_factor ** walls_crossed
+      humidity_att: 0.00012     # extra attenuation per metre: exp(-(h*RH + r*rain) * d)
+      rain_att: 0.004
+      threshold: 0.035          # blobs below this strength are not reported
+      noise_sd: 0.03            # total strength noise sd
+      persistent_frac: 0.75     # share of the noise that is a fixed per-map field
+      blur_base: 1.0            # position blur sd = blur_base + d * blur_per_m
+      blur_per_m: 0.1
+      persist_block: 5          # observer cells within the same block see the same persistent noise
+    cv:
+      p_detect: 0.95
+      armour_false_target: 0.10 # far-row armour labelled `target`
+  costs:                        # battery percent per action
+    move: 0.2
+    turn_per_90: 0.2            # added to a move per 90 degrees of heading change
+    turn: 0.2
+    lidar: 0.2
+    radar: 2.0
+    thermal: 5.0
+    cv: 8.0
+    battery_start: 100.0        # `charge` on a hearth takes one turn and refills to 100%
+  weather:
+    source: live                # live | fixed
+    location: bangalore         # bangalore | vellore
+    timeout_s: 10
+    retries: 3                  # attempts before falling back to the fixed values
+    coords:
+      bangalore: [12.97, 77.59]
+      vellore: [12.92, 79.13]
+      humid: [12.97, 77.59]
+    fixed:                      # used when source=fixed or the live fetch fails
+      bangalore: {temperature: 26.0, humidity: 65.0, rain: 0.0}
+      vellore: {temperature: 36.0, humidity: 55.0, rain: 0.0}
+      humid: {temperature: 21.8, humidity: 80.0, rain: 0.0}   # a humid Bangalore day
+
+# The agent's beliefs. `perturb` draws each assumed sensor number as true x U(1-perturb, 1+perturb)
+# (seeded); anything written explicitly here overrides the drawn value. Costs are known exactly.
+agent_assumed:
+  perturb: 0.10
+  life_prior_cv: 0.3            # spread of the agent's prior over the target's total life
+  signature_counts:             # how many of each decoy the agent expects in a castle
+    dog: 1.5
+    torch: 5.0
+    armour: 2.5
+    hearth: 3.5
+
+# Policy knobs of the agent (not knowledge about the world).
+agent:
+  reserve: 3.0                  # % kept in hand beyond the 0.4%/cell return bound
+  return_cost_per_cell: 0.4     # move + worst-case 90 degree turn
+  hysteresis: 0.10              # risky plan must beat Safe by this much
+  outer_wall: true              # routing heuristic: don't route behind a probable outer wall
+  evidence_temper: 1.0          # each scan's likelihood ratio is raised to this power (model-mismatch guard)
+  override:
+    enabled: true
+    samples: 30                 # Monte-Carlo detour samples for the battery term
+    w_alive: 1.0
+    w_battery: 1.0
+    w_location: 1.0
+    locations: 4                # how many likely locations a dash visits
+    p_confirm: 0.85             # chance that reaching a location ends in a rescue (CV miss, target off-pattern)
+    restart_value: 0.5          # Safe keeps the option to search again with a full battery: worth ~ base success
+  planner:
+    candidate_stride: 3         # candidate scan positions are on this grid (plus belief peaks)
+    replan_peak_shift: 8        # belief peak moving this far forces a replan
+    thermal_repeat_radius: 6    # no new thermal scan within this distance of an earlier one
+    lidar_unknown_trigger: 25   # LIDAR when this many unknown cells are within range
+    lidar_spacing: 6            # ...and the last LIDAR was at least this far away
+    confirm_mass: 0.35          # belief mass near a candidate that triggers a CV confirmation
+    rescue_posterior: 0.95
+    repeat_penalties: true      # down-weight re-scanning a recently scanned spot (ablation switch)
+  charging:
+    opportunistic_below: 90.0   # standing on a hearth below this: charge (one turn, to 100%)
+  approach:
+    stall_turns: 12             # no progress towards the CV standing cell for this long -> escalate
+    unknown_cost: 4.0           # escalated routing: price of an unknown cell (known floor costs 1)
+    view_radius: 4              # standing cells considered around a candidate
+    cooldown: 40                # turns an abandoned candidate is left alone
+    watchdog: true              # approach progress watchdog on/off (ablation switch)
+    view_hysteresis: 1.5        # keep the current viewpoint unless a new one scores this much better (1 = off)
+  stagnation_turns: 15          # no entropy drop, no new cells, no CV for this long -> escalate
+
+theme:
+  name: castle                  # castle | walle
+  rescuer_sprite: knight_m      # knight_m | knight_f
+  target_sprite: princess       # princess | prince
+
+viz:
+  fps: 30
+  turns_per_second: 8
+  gif_every: 2                  # export every n-th turn
+  gif_max_frames: 400

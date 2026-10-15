@@ -1,0 +1,10 @@
+# Showcase: clean rescue: belief concentrates, LIDAR -> radar -> CV confirm
+# Reproduce: python -m signalsearch run --config samples/clean_rescue/config.yaml
+extends: ../../configs/default.yaml
+seed: 267
+world:
+  target:
+    k: 1.3
+  weather:
+    source: fixed
+    location: bangalore

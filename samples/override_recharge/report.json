@@ -1,0 +1,704 @@
+{
+ "outcome": "rescued",
+ "turns": 139,
+ "battery": 89.8,
+ "inferred_location": {
+  "agent_frame": [
+   115,
+   140
+  ],
+  "map": null,
+  "mass_within_2": 0.9648,
+  "alternatives": [
+   {
+    "agent_frame": [
+     84,
+     89
+    ],
+    "mass_within_2": 0.0002
+   },
+   {
+    "agent_frame": [
+     157,
+     114
+    ],
+    "mass_within_2": 0.0001
+   }
+  ],
+  "offset_resolved": false,
+  "feasible_window": [
+   30,
+   189,
+   46,
+   191
+  ]
+ },
+ "status": "alive (rescued)",
+ "remaining_life_estimate": {
+  "mean": 92.0,
+  "p10": 31.0,
+  "p50": 82.3,
+  "p90": 165.1
+ },
+ "p_move_estimate": 0.1283,
+ "confidence": 1.0,
+ "cv_confirmed": true,
+ "recommended_next_step": "Escort the target to the hearth at [118, 135] (7 moves), keep them warm, and call for medical support.",
+ "tracks": [
+  {
+   "id": 0,
+   "pos": [
+    112.42,
+    81.62
+   ],
+   "sigma": 4.38,
+   "last_t": 74,
+   "hits": {
+    "thermal": 5,
+    "box": 3,
+    "lidar": 3
+   },
+   "labels": {},
+   "guess": "hearth?",
+   "speed": 0.148
+  },
+  {
+   "id": 1,
+   "pos": [
+    47.0,
+    103.0
+   ],
+   "sigma": 4.8,
+   "last_t": 1,
+   "hits": {
+    "thermal": 1
+   },
+   "labels": {},
+   "guess": "warm source?",
+   "speed": 0.0
+  },
+  {
+   "id": 2,
+   "pos": [
+    81.76,
+    91.07
+   ],
+   "sigma": 4.67,
+   "last_t": 74,
+   "hits": {
+    "thermal": 4
+   },
+   "labels": {},
+   "guess": "warm source?",
+   "speed": 0.0
+  },
+  {
+   "id": 3,
+   "pos": [
+    83.0,
+    87.0
+   ],
+   "sigma": 3.2,
+   "last_t": 1,
+   "hits": {
+    "thermal": 1
+   },
+   "labels": {},
+   "guess": "warm source?",
+   "speed": 0.0
+  },
+  {
+   "id": 4,
+   "pos": [
+    115.0,
+    139.0
+   ],
+   "sigma": 0.3,
+   "last_t": 138,
+   "hits": {
+    "thermal": 12,
+    "radar": 2,
+    "humanoid": 2,
+    "lidar": 2,
+    "cv": 1
+   },
+   "labels": {
+    "target": 1
+   },
+   "guess": "target",
+   "speed": 0.072
+  },
+  {
+   "id": 5,
+   "pos": [
+    128.0,
+    131.0
+   ],
+   "sigma": 0.3,
+   "last_t": 124,
+   "hits": {
+    "thermal": 6,
+    "small": 4,
+    "lidar": 4
+   },
+   "labels": {},
+   "guess": "fire?",
+   "speed": 0.077
+  },
+  {
+   "id": 6,
+   "pos": [
+    67.0,
+    124.0
+   ],
+   "sigma": 4.8,
+   "last_t": 30,
+   "hits": {
+    "thermal": 1
+   },
+   "labels": {},
+   "guess": "warm source?",
+   "speed": 0.0
+  },
+  {
+   "id": 7,
+   "pos": [
+    118.0,
+    135.0
+   ],
+   "sigma": 0.3,
+   "last_t": 135,
+   "hits": {
+    "box": 3,
+    "lidar": 3
+   },
+   "labels": {},
+   "guess": "hearth?",
+   "speed": 0.0
+  }
+ ],
+ "evidence": [
+  {
+   "t": 1,
+   "sensor": "thermal",
+   "pos": [
+    98.0,
+    99.0
+   ],
+   "sigma": 1.0,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 1,
+   "sensor": "thermal",
+   "pos": [
+    47.0,
+    103.0
+   ],
+   "sigma": 4.8,
+   "track": 1,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 1,
+   "sensor": "thermal",
+   "pos": [
+    106.0,
+    84.0
+   ],
+   "sigma": 3.2,
+   "track": 2,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 1,
+   "sensor": "thermal",
+   "pos": [
+    83.0,
+    87.0
+   ],
+   "sigma": 3.2,
+   "track": 3,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 2,
+   "sensor": "lidar",
+   "pos": [
+    99.0,
+    99.0
+   ],
+   "sigma": 0.3,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 10,
+   "sensor": "lidar",
+   "pos": [
+    99.0,
+    99.0
+   ],
+   "sigma": 0.3,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 14,
+   "sensor": "lidar",
+   "pos": [
+    99.0,
+    99.0
+   ],
+   "sigma": 0.3,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    101.0,
+    99.0
+   ],
+   "sigma": 2.4,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    103.0,
+    71.0
+   ],
+   "sigma": 4.0,
+   "track": 2,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    121.0,
+    136.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    116.0,
+    132.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    132.0,
+    132.0
+   ],
+   "sigma": 3.2,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 30,
+   "sensor": "thermal",
+   "pos": [
+    67.0,
+    124.0
+   ],
+   "sigma": 4.8,
+   "track": 6,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 43,
+   "sensor": "thermal",
+   "pos": [
+    100.0,
+    96.0
+   ],
+   "sigma": 3.2,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 43,
+   "sensor": "thermal",
+   "pos": [
+    93.0,
+    76.0
+   ],
+   "sigma": 4.8,
+   "track": 2,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 43,
+   "sensor": "thermal",
+   "pos": [
+    114.0,
+    136.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 43,
+   "sensor": "thermal",
+   "pos": [
+    117.0,
+    132.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 43,
+   "sensor": "thermal",
+   "pos": [
+    126.0,
+    129.0
+   ],
+   "sigma": 3.2,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 60,
+   "sensor": "thermal",
+   "pos": [
+    105.0,
+    89.0
+   ],
+   "sigma": 4.0,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 60,
+   "sensor": "thermal",
+   "pos": [
+    120.0,
+    135.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 60,
+   "sensor": "thermal",
+   "pos": [
+    117.0,
+    135.0
+   ],
+   "sigma": 3.2,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 60,
+   "sensor": "thermal",
+   "pos": [
+    132.0,
+    126.0
+   ],
+   "sigma": 3.2,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 74,
+   "sensor": "thermal",
+   "pos": [
+    114.0,
+    80.0
+   ],
+   "sigma": 4.8,
+   "track": 0,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 74,
+   "sensor": "thermal",
+   "pos": [
+    81.0,
+    92.0
+   ],
+   "sigma": 4.8,
+   "track": 2,
+   "interpretation": "warm source?"
+  },
+  {
+   "t": 74,
+   "sensor": "thermal",
+   "pos": [
+    115.0,
+    137.0
+   ],
+   "sigma": 2.4,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 74,
+   "sensor": "thermal",
+   "pos": [
+    116.0,
+    138.0
+   ],
+   "sigma": 2.4,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 74,
+   "sensor": "thermal",
+   "pos": [
+    129.0,
+    133.0
+   ],
+   "sigma": 2.4,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 87,
+   "sensor": "thermal",
+   "pos": [
+    110.0,
+    139.0
+   ],
+   "sigma": 2.4,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 87,
+   "sensor": "thermal",
+   "pos": [
+    116.0,
+    138.0
+   ],
+   "sigma": 2.4,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 87,
+   "sensor": "thermal",
+   "pos": [
+    128.0,
+    128.0
+   ],
+   "sigma": 1.6,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 103,
+   "sensor": "lidar",
+   "pos": [
+    128.0,
+    131.0
+   ],
+   "sigma": 0.3,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 111,
+   "sensor": "thermal",
+   "pos": [
+    114.0,
+    138.0
+   ],
+   "sigma": 2.4,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 111,
+   "sensor": "thermal",
+   "pos": [
+    117.0,
+    132.0
+   ],
+   "sigma": 1.6,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 111,
+   "sensor": "thermal",
+   "pos": [
+    130.0,
+    132.0
+   ],
+   "sigma": 1.6,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 112,
+   "sensor": "radar",
+   "pos": [
+    116.0,
+    138.0
+   ],
+   "sigma": 1.15,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 116,
+   "sensor": "lidar",
+   "pos": [
+    128.0,
+    131.0
+   ],
+   "sigma": 0.3,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 121,
+   "sensor": "lidar",
+   "pos": [
+    128.0,
+    131.0
+   ],
+   "sigma": 0.3,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 124,
+   "sensor": "lidar",
+   "pos": [
+    114.0,
+    140.0
+   ],
+   "sigma": 0.3,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 124,
+   "sensor": "lidar",
+   "pos": [
+    128.0,
+    131.0
+   ],
+   "sigma": 0.3,
+   "track": 5,
+   "interpretation": "fire?"
+  },
+  {
+   "t": 124,
+   "sensor": "lidar",
+   "pos": [
+    118.0,
+    135.0
+   ],
+   "sigma": 0.3,
+   "track": 7,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 125,
+   "sensor": "radar",
+   "pos": [
+    114.0,
+    139.0
+   ],
+   "sigma": 1.15,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 130,
+   "sensor": "lidar",
+   "pos": [
+    118.0,
+    135.0
+   ],
+   "sigma": 0.3,
+   "track": 7,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 135,
+   "sensor": "lidar",
+   "pos": [
+    115.0,
+    139.0
+   ],
+   "sigma": 0.3,
+   "track": 4,
+   "interpretation": "target"
+  },
+  {
+   "t": 135,
+   "sensor": "lidar",
+   "pos": [
+    118.0,
+    135.0
+   ],
+   "sigma": 0.3,
+   "track": 7,
+   "interpretation": "hearth?"
+  },
+  {
+   "t": 138,
+   "sensor": "cv",
+   "pos": [
+    115.0,
+    139.0
+   ],
+   "sigma": 0.3,
+   "track": 4,
+   "interpretation": "target"
+  }
+ ],
+ "overrides": [
+  {
+   "t": 119,
+   "plans": {
+    "safe": 0.0625,
+    "dash": 0.4459,
+    "lean": 0.4989
+   },
+   "choice": "lean",
+   "battery_left": {
+    "safe": 20.35,
+    "dash": 0.0,
+    "lean": 0.0
+   },
+   "p_chosen": 0.4989
+  }
+ ],
+ "spend": {
+  "thermal": 35.0,
+  "lidar": 4.0,
+  "move": 20.4,
+  "turn": 5.0,
+  "radar": 14.0,
+  "charge": 0.0,
+  "cv": 8.0
+ },
+ "recharges": 1
+}

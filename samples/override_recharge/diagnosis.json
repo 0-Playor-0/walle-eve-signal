@@ -1,0 +1,135 @@
+{
+ "run": "override_recharge",
+ "outcome": "rescued",
+ "turns": 139,
+ "life": 236,
+ "battery_end": 89.8,
+ "first_10": 60,
+ "first_loc": 124,
+ "excursions": [
+  [
+   3,
+   127
+  ],
+  [
+   129,
+   null
+  ]
+ ],
+ "short_excursions": 0,
+ "charging_loops": [],
+ "charges": [
+  128
+ ],
+ "oscillation": [],
+ "plan_resets": 11,
+ "churn": [],
+ "idle": [],
+ "near_not_closing": [],
+ "cv": [
+  {
+   "t": 138,
+   "pose": [
+    116,
+    139
+   ],
+   "facing": "W",
+   "labels": [
+    "target"
+   ],
+   "verdict": "saw target",
+   "seen": 4,
+   "walls": 0
+  }
+ ],
+ "repeat_wall_cv": 0,
+ "confirm_sequences": [
+  {
+   "start": 112,
+   "end": 137,
+   "steps": {
+    "approach": 17,
+    "lidar": 4,
+    "radar": 1,
+    "face": 1,
+    "cv": 1
+   },
+   "reached_cv": true,
+   "stall": null
+  }
+ ],
+ "confirm_stalled": [],
+ "near_failing": [
+  111,
+  112,
+  113,
+  115,
+  116,
+  117,
+  118,
+  119
+ ],
+ "phases": [
+  [
+   "search",
+   0,
+   111
+  ],
+  [
+   "approach",
+   112,
+   118
+  ],
+  [
+   "lean",
+   119,
+   126
+  ],
+  [
+   "search",
+   127,
+   127
+  ],
+  [
+   "approach",
+   128,
+   138
+  ],
+  [
+   "end",
+   139,
+   139
+  ]
+ ],
+ "hist_all": {
+  "thermal": 7,
+  "lidar": 20,
+  "move": 102,
+  "radar": 7,
+  "charge": 1,
+  "turn": 1,
+  "cv": 1
+ },
+ "hist_after": {
+  "radar": 1,
+  "move": 9,
+  "charge": 1,
+  "lidar": 2,
+  "turn": 1,
+  "cv": 1
+ },
+ "overrides": 1,
+ "escalations": [],
+ "min_dist": 0.0,
+ "turns_near": 13,
+ "patterns": {
+  "charging_loop": false,
+  "oscillation": false,
+  "plan_churn": false,
+  "idle_streak": false,
+  "near_not_closing": false,
+  "blocked_cv": false,
+  "confirm_stall": false,
+  "no_cv_after_localization": false
+ }
+}

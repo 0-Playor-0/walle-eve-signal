@@ -1,0 +1,6 @@
+pygame==2.6.1
+numpy==2.5.4
+PyYAML==6.0.3
+Pillow==12.3.0
+requests==2.34.2
+matplotlib==3.11.2

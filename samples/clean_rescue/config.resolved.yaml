@@ -1,0 +1,242 @@
+seed: 267
+max_steps: 2000
+world:
+  map:
+    size: 100
+    min_room: 7
+    max_room: 20
+    courtyards:
+    - 1
+    - 2
+    courtyard_min: 18
+    doors_per_wall:
+    - 1
+    - 2
+    door_every: 15
+    door_width:
+    - 1
+    - 2
+    rubble: 0.004
+  spawn:
+    min_dist: 40
+    max_dist: 140
+  entities:
+    hearths:
+    - 3
+    - 4
+    torches:
+    - 4
+    - 6
+    armour:
+    - 2
+    - 3
+    dogs:
+    - 1
+    - 2
+  temps:
+    human: 34.0
+    dog: 38.0
+    torch: 320.0
+    hearth: 520.0
+  dog:
+    p_move: 0.7
+  target:
+    p0: 0.3
+    k: 1.3
+    drain_multiplier: 1.0
+    drain_fudge: 1.15
+    room_bias: 3.0
+  signal:
+    max_age: 30
+    bearing_noise_deg: 25.0
+    d0: 30.0
+    strength_noise: 0.25
+  sensors:
+    lidar:
+      range: 10.0
+      p_shape: 0.9
+      shape_confusion: 0.1
+      humidity_loss: 0.0015
+      rain_loss: 0.04
+    radar:
+      range: 20.0
+      p_detect: 0.9
+      wall_atten: 0.92
+      pos_noise: 2
+      false_alarm: 0.03
+    thermal:
+      range: 50.0
+      contrast_ref: 4.0
+      d0: 20.0
+      wall_factor: 0.6
+      humidity_att: 0.00012
+      rain_att: 0.004
+      threshold: 0.035
+      noise_sd: 0.03
+      persistent_frac: 0.75
+      blur_base: 1.0
+      blur_per_m: 0.1
+      persist_block: 5
+    cv:
+      p_detect: 0.95
+      armour_false_target: 0.1
+  costs:
+    move: 0.2
+    turn_per_90: 0.2
+    turn: 0.2
+    lidar: 0.2
+    radar: 2.0
+    thermal: 5.0
+    cv: 8.0
+    battery_start: 100.0
+  weather:
+    source: fixed
+    location: bangalore
+    timeout_s: 10
+    retries: 3
+    coords:
+      bangalore:
+      - 12.97
+      - 77.59
+      vellore:
+      - 12.92
+      - 79.13
+      humid:
+      - 12.97
+      - 77.59
+    fixed:
+      bangalore:
+        temperature: 26.0
+        humidity: 65.0
+        rain: 0.0
+      vellore:
+        temperature: 36.0
+        humidity: 55.0
+        rain: 0.0
+      humid:
+        temperature: 21.8
+        humidity: 80.0
+        rain: 0.0
+    resolved:
+      temperature: 26.0
+      humidity: 65.0
+      rain: 0.0
+      origin: fixed (bangalore)
+      location: bangalore
+agent_assumed:
+  resolved: true
+  perturb: 0.1
+  map_size: 100
+  frame_size: 199
+  costs:
+    move: 0.2
+    turn_per_90: 0.2
+    turn: 0.2
+    lidar: 0.2
+    radar: 2.0
+    thermal: 5.0
+    cv: 8.0
+    battery_start: 100.0
+  max_steps: 2000
+  sensors:
+    lidar:
+      range: 9.119199
+      p_shape: 0.892992
+      shape_confusion: 0.096406
+      humidity_loss: 0.001465
+      rain_loss: 0.04346
+    radar:
+      range: 20.386822
+      p_detect: 0.898323
+      wall_atten: 0.998288
+      pos_noise: 2
+      false_alarm: 0.031806
+    thermal:
+      range: 54.530372
+      contrast_ref: 4.369163
+      d0: 20.81066
+      wall_factor: 0.649625
+      humidity_att: 0.000112
+      rain_att: 0.003822
+      threshold: 0.037723
+      noise_sd: 0.027778
+      persistent_frac: 0.823161
+      blur_base: 1.072645
+      blur_per_m: 0.097904
+      persist_block: 5
+    cv:
+      p_detect: 0.99
+      armour_false_target: 0.093307
+  temps:
+    human: 33.584157
+    dog: 36.229315
+    torch: 288.466146
+    hearth: 545.589198
+  signal:
+    max_age: 27.96682
+    bearing_noise_deg: 25.791782
+    d0: 29.729676
+    strength_noise: 0.232617
+  target:
+    p0: 0.327328
+    k: 1.329577
+    drain_fudge: 1.16591
+  dog_p_move: 0.685772
+  life_prior_cv: 0.3
+  signature_counts:
+    dog: 1.5
+    torch: 5.0
+    armour: 2.5
+    hearth: 3.5
+agent:
+  reserve: 3.0
+  return_cost_per_cell: 0.4
+  hysteresis: 0.1
+  outer_wall: true
+  evidence_temper: 1.0
+  override:
+    enabled: true
+    samples: 30
+    w_alive: 1.0
+    w_battery: 1.0
+    w_location: 1.0
+    locations: 4
+    p_confirm: 0.85
+    restart_value: 0.5
+  planner:
+    candidate_stride: 3
+    replan_peak_shift: 8
+    thermal_repeat_radius: 6
+    lidar_unknown_trigger: 25
+    lidar_spacing: 6
+    confirm_mass: 0.35
+    rescue_posterior: 0.95
+    repeat_penalties: true
+  charging:
+    opportunistic_below: 90.0
+  approach:
+    stall_turns: 12
+    unknown_cost: 4.0
+    view_radius: 4
+    cooldown: 40
+    watchdog: true
+    view_hysteresis: 1.5
+  stagnation_turns: 15
+theme:
+  name: castle
+  rescuer_sprite: knight_m
+  target_sprite: princess
+viz:
+  fps: 30
+  turns_per_second: 8
+  gif_every: 2
+  gif_max_frames: 400
+seeds:
+  map: 54462848
+  entities: 3885743403
+  target: 1605638494
+  dogs: 3669377892
+  sensors: 978333771
+  signal: 4122356903
+  assumed: 4183924450
+  agent: 1299051621

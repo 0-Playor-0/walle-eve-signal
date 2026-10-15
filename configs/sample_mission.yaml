@@ -1,0 +1,10 @@
+# The committed sample mission: the clean-rescue showcase (samples/clean_rescue).
+# Fixed weather so it replays identically offline.
+extends: default.yaml
+seed: 267
+world:
+  target:
+    k: 1.3
+  weather:
+    source: fixed
+    location: bangalore

@@ -1,0 +1,182 @@
+{
+ "run": "decoy_recovery",
+ "outcome": "rescued",
+ "turns": 126,
+ "life": 174,
+ "battery_end": 22.4,
+ "first_10": 111,
+ "first_loc": 111,
+ "excursions": [
+  [
+   2,
+   11
+  ],
+  [
+   12,
+   null
+  ]
+ ],
+ "short_excursions": 1,
+ "charging_loops": [],
+ "charges": [],
+ "oscillation": [],
+ "plan_resets": 11,
+ "churn": [],
+ "idle": [],
+ "near_not_closing": [],
+ "cv": [
+  {
+   "t": 87,
+   "pose": [
+    72,
+    108
+   ],
+   "facing": "N",
+   "labels": [
+    "fire"
+   ],
+   "verdict": "target far (13 cells)",
+   "seen": 4,
+   "walls": 0
+  },
+  {
+   "t": 89,
+   "pose": [
+    72,
+    107
+   ],
+   "facing": "N",
+   "labels": [],
+   "verdict": "target far (13 cells)",
+   "seen": 4,
+   "walls": 0
+  },
+  {
+   "t": 124,
+   "pose": [
+    60,
+    111
+   ],
+   "facing": "S",
+   "labels": [
+    "target"
+   ],
+   "verdict": "saw target",
+   "seen": 3,
+   "walls": 0
+  }
+ ],
+ "repeat_wall_cv": 0,
+ "confirm_sequences": [
+  {
+   "start": 68,
+   "end": 70,
+   "steps": {
+    "radar": 1,
+    "approach": 2
+   },
+   "reached_cv": false,
+   "stall": "approach"
+  },
+  {
+   "start": 83,
+   "end": 90,
+   "steps": {
+    "approach": 4,
+    "cv": 2,
+    "lidar": 1,
+    "radar": 1
+   },
+   "reached_cv": true,
+   "stall": null
+  },
+  {
+   "start": 111,
+   "end": 123,
+   "steps": {
+    "approach": 10,
+    "lidar": 1,
+    "cv": 1
+   },
+   "reached_cv": true,
+   "stall": null
+  }
+ ],
+ "confirm_stalled": [],
+ "near_failing": [
+  118,
+  119,
+  120,
+  121,
+  122,
+  123
+ ],
+ "phases": [
+  [
+   "search",
+   0,
+   67
+  ],
+  [
+   "approach",
+   68,
+   71
+  ],
+  [
+   "search",
+   72,
+   82
+  ],
+  [
+   "approach",
+   83,
+   90
+  ],
+  [
+   "search",
+   91,
+   110
+  ],
+  [
+   "approach",
+   111,
+   122
+  ],
+  [
+   "lean",
+   123,
+   125
+  ],
+  [
+   "end",
+   126,
+   126
+  ]
+ ],
+ "hist_all": {
+  "lidar": 21,
+  "move": 95,
+  "thermal": 4,
+  "radar": 3,
+  "cv": 3
+ },
+ "hist_after": {
+  "move": 12,
+  "lidar": 2,
+  "cv": 1
+ },
+ "overrides": 1,
+ "escalations": [],
+ "min_dist": 0.0,
+ "turns_near": 9,
+ "patterns": {
+  "charging_loop": false,
+  "oscillation": false,
+  "plan_churn": false,
+  "idle_streak": false,
+  "near_not_closing": false,
+  "blocked_cv": false,
+  "confirm_stall": false,
+  "no_cv_after_localization": false
+ }
+}

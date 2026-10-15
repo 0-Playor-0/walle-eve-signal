@@ -1,0 +1,10 @@
+# Showcase: endgame override (lean dash) and a one-turn recharge on the way
+# Reproduce: python -m signalsearch run --config samples/override_recharge/config.yaml
+extends: ../../configs/default.yaml
+seed: 307
+world:
+  target:
+    k: 2.0
+  weather:
+    source: fixed
+    location: bangalore

@@ -1,0 +1,10 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+runs/
+# art packs are CC0 but downloaded separately (see README)
+assets/kenney_tiny_dungeon/
+assets/0x72_DungeonTilesetII_v1.7/
+assets/0x72_DungeonTilesetII_v1.7.zip

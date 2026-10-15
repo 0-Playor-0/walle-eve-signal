@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signalsearch"
+version = "1.0.0"
+description = "WALL-E and EVE's Signal: an autonomous search-and-rescue agent with a pixel-art castle visualiser"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pygame>=2.6", "numpy>=2.0", "PyYAML>=6.0", "Pillow>=10.0", "requests>=2.31", "matplotlib>=3.8"]
+
+
+[project.scripts]
+signalsearch = "signalsearch.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["signalsearch*"]

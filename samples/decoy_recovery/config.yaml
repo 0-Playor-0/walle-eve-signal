@@ -1,0 +1,10 @@
+# Showcase: a brazier fools thermal, CV labels it fire, the agent recovers
+# Reproduce: python -m signalsearch run --config samples/decoy_recovery/config.yaml
+extends: ../../configs/default.yaml
+seed: 396
+world:
+  target:
+    k: 1.3
+  weather:
+    source: fixed
+    location: bangalore
