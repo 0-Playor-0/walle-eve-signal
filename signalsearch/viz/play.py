@@ -11,7 +11,7 @@ import pygame
 from ..common.actions import CHARGE, CV, DIRS, LIDAR, MOVE, RADAR, THERMAL, TURN, WAIT, Action
 from ..sim.runner import make_agent, prepare_config
 from ..world.env import Env
-from .viewer import H, W, Viewer, handle_common_keys, receipt, weather_str
+from .viewer import H, W, Viewer, events_of, handle_common_keys, receipt, weather_str
 
 ARROWS = {pygame.K_UP: "N", pygame.K_RIGHT: "E", pygame.K_DOWN: "S", pygame.K_LEFT: "W",
           pygame.K_w: "N", pygame.K_d: "E", pygame.K_s: "S", pygame.K_a: "W"}
@@ -38,7 +38,8 @@ def live_frame(env: Env, agent, obs, trail: list, weather: str) -> dict:
                  "hearths": [list(h) for h in agent.occ.hearths], "path": path,
                  "goal": list(route["goal"]) if route else None,
                  "scan": {"kind": act, "pose": obs.pose, "facing": obs.facing} if act in SENSORS else None,
-                 "fused": agent.fused, "life": agent.life.remaining(obs.t), "p_move": agent.motion.estimate(obs.t)},
+                 "fused": agent.fused, "life": agent.life.remaining(obs.t), "p_move": agent.motion.estimate(obs.t),
+                 "readings": obs.readings or {}},
         "truth": env.truth_snapshot(), "trail": trail,
     }
 
@@ -66,8 +67,9 @@ def play(config, seed, side: str) -> None:
     pending = None
     tps = float(cfg.get("viz", {}).get("turns_per_second", 8)) / 2
     acc, tick, paused, running = 0.0, 0, False, True
-    help_r = "arrows move  Q/E turn  L lidar  R radar  T thermal  C cv  H charge  space wait  B/F/P/M layers  Esc quit"
-    help_t = "arrows/WASD move the target (else she stays)  P pause  +/- speed  B/F/M layers  Esc quit"
+    help_r = "arrows move  Q/E turn  L lidar  R radar  T thermal  C cv  H charge  space wait  B/F/P/M layers  G legend  Esc quit"
+    help_t = "arrows/WASD move the target (else she stays)  P pause  +/- speed  B/F/M layers  L legend  Esc quit"
+    viewer.add_events(0, [])
     while running:
         dt = clock.tick(30) / 1000.0
         tick += 1
@@ -85,6 +87,8 @@ def play(config, seed, side: str) -> None:
                         step_now = Action(MOVE, ARROWS[ev.key])
                     elif ev.key in RESCUER_KEYS:
                         step_now = RESCUER_KEYS[ev.key]
+                    elif ev.key == pygame.K_g:  # L is LIDAR when you play the rescuer
+                        viewer.layers["legend"] = not viewer.layers["legend"]
                     else:
                         handle_common_keys(viewer, ev.key)
                 else:
@@ -104,6 +108,7 @@ def play(config, seed, side: str) -> None:
                 agent.observe(obs)
                 agent.decision = {"reason": f"you chose {step_now}", "mode": "you"}
                 receipts.append(receipt(obs.to_dict()))
+                viewer.add_events(obs.t, events_of(obs.to_dict()))
                 trail.append(list(env.pos))
             elif side == "target" and not paused:
                 acc += dt * tps
@@ -116,6 +121,7 @@ def play(config, seed, side: str) -> None:
                     pending = None
                     obs = env.step(action, target_move=tgt, target_controlled=True)
                     receipts.append(receipt(obs.to_dict()))
+                    viewer.add_events(obs.t, events_of(obs.to_dict(), (agent.decision or {}).get("override")))
                     trail.append(list(env.pos))
                     action = agent.act(obs)   # a few ms; the event loop keeps running every frame
         fd = live_frame(env, agent, obs, trail, weather)

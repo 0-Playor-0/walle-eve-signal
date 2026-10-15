@@ -1,4 +1,10 @@
-"""Themes are skins only: names, colours and which sprite plays which role. Code stays agent/target."""
+"""Themes are skins only: names, colours and which sprite plays which role. Code stays agent/target.
+
+Every colour the viewer draws lives here, so the web replay can reuse the same palette:
+  THEMES  - per-skin surfaces (background, panels, map cells, text)
+  PALETTE - shared meaning colours. Warm hues (amber, orange, red) are reserved for heat and fire;
+            the belief is drawn in one cool hue only.
+"""
 from __future__ import annotations
 
 THEMES = {
@@ -7,19 +13,58 @@ THEMES = {
         "target": {"princess": "the princess", "prince": "the prince"},
         "bg": (18, 16, 22), "panel": (30, 27, 36), "accent": (232, 184, 92), "text": (230, 224, 214),
         "dim": (150, 142, 136), "fog": (16, 20, 34), "free": (74, 68, 66), "wall": (150, 140, 140),
-        "oob": (6, 6, 8),
+        "oob": (6, 6, 8), "inset": (24, 22, 28),
     },
     "walle": {
         "title": "WALL-E and EVE's Signal",
         "target": {"princess": "the probe", "prince": "the probe"}, "tint_mult": (255, 215, 160),
         "bg": (24, 18, 12), "panel": (40, 32, 22), "accent": (246, 196, 70), "text": (240, 228, 206),
         "dim": (170, 150, 120), "fog": (30, 24, 18), "free": (104, 86, 60), "wall": (160, 136, 104),
-        "oob": (8, 6, 4),
+        "oob": (8, 6, 4), "inset": (30, 24, 16),
     },
+}
+
+PALETTE = {
+    # belief: one cool hue blended over the map, near-white at the peak
+    "belief": (80, 210, 220), "belief_peak": (232, 252, 252), "belief_alpha": 0.55, "belief_floor": 0.01,
+    "area50": (170, 245, 248), "area90": (110, 205, 220), "peak": (240, 255, 255),
+    "fog_edge": 0.55,                       # known / unknown boundary band: fog x this
+    # sensors (sonar pings, receipts, timeline)
+    "sensor": {"thermal": (245, 170, 60), "radar": (110, 220, 120), "lidar": (110, 165, 255), "cv": (255, 245, 140)},
+    "ping_alpha": 220, "ping_static_alpha": 70,
+    # what a track is thought to be (agent's fused detections)
+    "guess": {"target?": (255, 90, 200), "target": (255, 60, 180), "dog?": (190, 130, 70), "dog": (190, 130, 70),
+              "fire?": (255, 150, 40), "torch": (255, 150, 40), "hearth?": (255, 90, 40), "hearth": (255, 90, 40),
+              "armour": (150, 200, 230), "humanoid (armour or target)?": (120, 220, 255), "living?": (255, 120, 140),
+              "warm source?": (255, 200, 120), "unknown": (220, 220, 220)},
+    "mode": {"search": (90, 170, 110), "approach": (90, 160, 230), "return": (220, 170, 60), "dash": (230, 80, 60),
+             "lean": (230, 110, 60), "continue": (200, 90, 200), "you": (150, 150, 160)},
+    "mode_other": (120, 120, 120), "mode_text": (20, 20, 20),
+    # actors and markers
+    "goal": (255, 255, 255), "trail": (90, 200, 255), "rescuer": (90, 200, 255), "target": (255, 80, 200),
+    "dead": (120, 120, 120), "outline": (0, 0, 0), "minimap_frame": (255, 255, 255),
+    "energy_bg": (40, 0, 0), "energy_lo": (255, 0, 60), "energy_hi": (0, 220, 60),
+    "entity_dot": {"dog": (190, 130, 70), "torch": (255, 150, 40), "hearth": (255, 70, 40), "armour": (160, 200, 230)},
+    # warm light on the truth side
+    "torch_light": (255, 170, 70), "hearth_light": (255, 120, 50),
+    # bottom bar
+    "bar_bg": (50, 50, 56), "battery_lo": (230, 60, 70), "battery_hi": (60, 220, 110),
+    "life": (140, 200, 255), "life_band": (60, 92, 130), "life_true": (255, 150, 200),
+    "override_bg": (170, 40, 30), "override_text": (255, 240, 220),
+    "timeline_bg": (44, 42, 50), "cursor": (255, 255, 255),
+    "event": {"thermal": (245, 170, 60), "radar": (110, 220, 120), "lidar": (110, 165, 255), "cv": (255, 245, 140),
+              "charge": (120, 230, 140), "override": (230, 70, 60)},
+    # receipts: one colour per action type
+    "receipt": {"move": (150, 142, 136), "turn": (150, 142, 136), "wait": (120, 115, 110), "spawn": (200, 200, 210),
+                "lidar": (110, 165, 255), "radar": (110, 220, 120), "thermal": (245, 170, 60), "cv": (255, 245, 140),
+                "charge": (120, 230, 140)},
+    "outcome_good": (90, 230, 120), "outcome_bad": (240, 90, 80), "outcome_box": (0, 0, 0),
+    "legend_bg": (10, 12, 18, 220), "dim_floor": (120, 120, 128), "wall_shadow": (0, 0, 0, 110),
 }
 
 
 def theme(cfg: dict) -> dict:
+    """The skin named in the config, with its sprite roles."""
     t = cfg.get("theme", {})
     name = t.get("name", "castle")
     out = dict(THEMES.get(name, THEMES["castle"]))

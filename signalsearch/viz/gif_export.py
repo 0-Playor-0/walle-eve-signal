@@ -21,6 +21,8 @@ def export_gif(run_dir, out, every: int | None = None, max_frames: int | None = 
     pygame.display.set_mode((1, 1))
     screen = pygame.Surface((W, H))
     viewer = Viewer(log.cfg, log.walls, log.static)
+    viewer.static_ping = True  # fixed frames: each scan's ring at full radius, low opacity
+    viewer.set_timeline(*log.timeline())
     idx = list(range(0, len(log), every))
     if len(idx) > max_frames:
         step = len(idx) / max_frames

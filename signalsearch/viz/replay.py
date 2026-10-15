@@ -9,7 +9,7 @@ import pygame
 import yaml
 
 from ..sim.logger import load_jsonl
-from .viewer import H, W, Viewer, handle_common_keys, receipt, weather_str
+from .viewer import H, W, Viewer, events_of, handle_common_keys, receipt, weather_str
 
 SENSORS = ("lidar", "radar", "thermal", "cv")
 
@@ -26,6 +26,15 @@ class RunLog:
         self.snaps = np.load(d / "beliefs.npz")
         self.receipts = [receipt(r["observation"]) for r in self.trace]
         self.weather = weather_str(self.static["weather"])
+
+    def timeline(self) -> tuple[dict[int, list[str]], int]:
+        """Event markers for the whole mission (detections, camera labels, charges, overrides) and its length."""
+        ev = {}
+        for i, r in enumerate(self.trace):
+            kinds = events_of(r["observation"], r.get("override"))
+            if kinds:
+                ev[i] = kinds
+        return ev, len(self.trace)
 
     def __len__(self):
         return len(self.trace)
@@ -48,6 +57,7 @@ class RunLog:
                      "belief": self.snaps["b" + key].astype(np.float32), "pose": obs["pose"], "facing": obs["facing"],
                      "hearths": rec.get("hearths") or prev.get("hearths", []), "path": plan.get("path"),
                      "goal": plan.get("route_goal") or plan.get("goal"), "scan": scan, "fused": rec.get("fused", []),
+                     "readings": obs.get("readings") or {},
                      "life": rec.get("remaining_life") or prev.get("remaining_life"),
                      "p_move": rec.get("p_move_estimate") or prev.get("p_move_estimate") or 0.0},
             "truth": self.truth[t],
@@ -65,6 +75,7 @@ def replay(run_dir, gif: str | None = None) -> None:
     screen = pygame.display.set_mode((W, H), pygame.SCALED | pygame.RESIZABLE)
     pygame.display.set_caption(f"Replay - {Path(run_dir).name}")
     viewer = Viewer(log.cfg, log.walls, log.static)
+    viewer.set_timeline(*log.timeline())
     clock = pygame.time.Clock()
     i, playing, tps, acc, tick = 0, True, float(log.cfg.get("viz", {}).get("turns_per_second", 8)), 0.0, 0
     running = True
@@ -74,6 +85,10 @@ def replay(run_dir, gif: str | None = None) -> None:
         for ev in pygame.event.get():  # every frame, or macOS never shows the window
             if ev.type == pygame.QUIT:
                 running = False
+            elif ev.type == pygame.MOUSEBUTTONDOWN and ev.button == 1:
+                j = viewer.timeline_turn(ev.pos)
+                if j is not None:
+                    i, playing = min(j, len(log) - 1), False
             elif ev.type == pygame.KEYDOWN:
                 if ev.key in (pygame.K_q, pygame.K_ESCAPE):
                     running = False
@@ -97,6 +112,7 @@ def replay(run_dir, gif: str | None = None) -> None:
                 acc -= 1
                 i = min(i + 1, len(log) - 1)
         viewer.draw(screen, log.frame(i), log.receipts[:i + 1], tick,
-                    extra_help=f"space play/pause  <-/-> step  +/- speed ({tps:.1f} t/s)  B belief  F fog  P path  T truth  M full map  Q quit")
+                    extra_help=f"space play/pause  <-/-> step  +/- speed ({tps:.1f} t/s)  click timeline: jump  B belief  "
+                               f"F fog  P path  T truth  M full map  L legend  Q quit")
         pygame.display.flip()
     pygame.quit()
