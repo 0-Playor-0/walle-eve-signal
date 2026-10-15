@@ -10,10 +10,13 @@ armour, manage its battery, and decide when it is worth gambling to finish the r
 The default skin is a knight looking for a lost princess (`theme: castle`); `theme: walle` swaps in
 WALL-E and EVE style robots. The code itself uses neutral names (`agent`, `target`).
 
+**▶ Watch it in your browser: [0-playor-0.github.io/walle-eve-signal](https://0-playor-0.github.io/walle-eve-signal/)**:
+three recorded missions, replayed with the same viewer, no install needed.
+
 ![sample replay](samples/clean_rescue/replay.gif)
 
-*`samples/clean_rescue` (seed 267). Left: what the agent believes (fog = unknown, heat = where it thinks
-she is). Middle: the truth. Right: every battery "purchase". The belief closes in on her room, LIDAR and
+*`samples/clean_rescue` (seed 267). Left: what the agent believes (fog = unknown, teal glow = where it
+thinks she is). Middle: the truth. Right: every battery "purchase". The belief closes in on her room, LIDAR and
 radar check the candidate, the camera (CV) confirms, and the knight steps in at turn 61.*
 
 **Contents:** [What it does](#what-it-does) · [Screenshots](#screenshots) · [Install](#install) ·
@@ -114,6 +117,10 @@ python -m signalsearch replay samples/clean_rescue       # clean rescue
 python -m signalsearch replay samples/decoy_recovery     # a brazier fools thermal, CV sorts it out
 python -m signalsearch replay samples/override_recharge  # endgame gamble + recharge on the way
 ```
+
+The same three runs play in the browser at the [web replay](https://0-playor-0.github.io/walle-eve-signal/).
+It is a static page in `docs/` (served by GitHub Pages); to add or refresh runs, export them with
+`python -m signalsearch.viz.web_export <run folders>`, which writes `docs/replay/`.
 
 ### Play it yourself
 
@@ -415,10 +422,10 @@ signalsearch/
   agent/      frame, occupancy, belief, sensors_assumed, fusion, motion_estimate, fields,
               safety, planner, charging, override, report, agent
   sim/        runner, logger, evaluate
-  viz/        viewer, assets, themes, replay, play, gif_export
+  viz/        viewer, assets, themes, replay, play, gif_export, web_export
   analysis/   analyze, diagnose
 samples/      three showcase runs (clean rescue, decoy recovery, override + recharge)
-docs/         screenshots
+docs/         the web replay (index.html, replay/ data, fonts/) and the README screenshots
 ```
 
 ## Known limitations

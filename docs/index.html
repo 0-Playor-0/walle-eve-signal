@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALL-E and EVE's Signal: Replay</title>
+<link rel="icon" href="data:,">
+<meta name="description" content="Watch an autonomous search-and-rescue agent explore an unknown castle, tell a princess apart from decoys, and manage its battery.">
+<style>
+  @font-face { font-family: "Silkscreen"; src: url("fonts/Silkscreen-Regular.ttf") format("truetype"); font-weight: 400; }
+  @font-face { font-family: "Silkscreen"; src: url("fonts/Silkscreen-Bold.ttf") format("truetype"); font-weight: 700; }
+  :root {
+    --bg: #121016; --panel: #1e1b24; --inset: #18161c; --text: #e6e0d6; --dim: #968e88; --accent: #e8b85c;
+    --line: #2e2a35; --teal: #50d2dc;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font: 15px/1.55 ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--accent); }
+  .wrap { max-width: 1312px; margin: 0 auto; padding: 20px 16px 48px; }
+  header h1 { font-family: "Silkscreen", monospace; font-weight: 700; color: var(--accent); font-size: clamp(20px, 3.4vw, 34px);
+    letter-spacing: .5px; margin: 4px 0 6px; line-height: 1.15; }
+  header p { margin: 0 0 14px; color: var(--dim); max-width: 860px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .bar .grp { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .bar label.lbl { color: var(--dim); font-size: 13px; }
+  select, button { font: inherit; font-size: 14px; color: var(--text); background: #2a2631; border: 1px solid #3a3542; border-radius: 6px;
+    padding: 6px 10px; cursor: pointer; }
+  button:hover, select:hover { border-color: var(--accent); }
+  button.on { background: #3b3424; border-color: var(--accent); color: #fff3d6; }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chk { font-size: 13px; color: var(--text); display: inline-flex; gap: 5px; align-items: center; cursor: pointer; user-select: none; }
+  .chk input { accent-color: var(--accent); }
+  .meta { color: var(--dim); font-size: 13px; margin-left: auto; }
+  .stage { position: relative; width: 100%; aspect-ratio: 1280 / 760; background: #000; border-radius: 8px; overflow: hidden;
+    border: 1px solid var(--line); }
+  canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; cursor: default; }
+  .loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--dim); font-family: "Silkscreen", monospace; }
+  .scrub { width: 100%; margin: 10px 0 0; accent-color: var(--accent); }
+  .help { color: var(--dim); font-size: 13px; margin-top: 6px; }
+  .help kbd { font: 12px ui-monospace, Menlo, monospace; background: #2a2631; border: 1px solid #3a3542; border-radius: 4px; padding: 1px 5px; }
+  section.read { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-top: 22px; }
+  section.read div { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; }
+  section.read h2 { font-family: "Silkscreen", monospace; font-size: 14px; color: var(--accent); margin: 0 0 6px; font-weight: 400; }
+  section.read p { margin: 0; font-size: 14px; color: #cfc8bd; }
+  .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: -1px; margin: 0 3px 0 1px; }
+  footer { color: var(--dim); font-size: 13px; margin-top: 26px; }
+  .narrow { display: none; color: var(--dim); font-size: 13px; margin: 8px 0 0; }
+  @media (max-width: 640px) { .narrow { display: block; } .meta { margin-left: 0; width: 100%; } .wrap { padding: 14px 16px 36px; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>WALL-E and EVE's Signal</h1>
+    <p>An autonomous agent searches a castle it has never seen for a lost princess. It has one noisy distress call, four sensors,
+      a battery, and a target who is running out of energy. Left: what the agent believes. Middle: the truth. Right: every battery
+      "purchase". These are recorded runs of the real agent, replayed in your browser.</p>
+  </header>
+
+  <div class="bar" role="toolbar" aria-label="Replay controls">
+    <div class="grp">
+      <label class="lbl" for="mission">Mission</label>
+      <select id="mission"></select>
+    </div>
+    <div class="grp">
+      <button id="back" title="Step back (left arrow)" aria-label="Step back">&#9664;</button>
+      <button id="play" title="Play / pause (space)" aria-label="Play or pause" style="min-width:78px">Pause</button>
+      <button id="fwd" title="Step forward (right arrow)" aria-label="Step forward">&#9654;</button>
+      <button id="restart" title="Back to turn 0 (Home)">Restart</button>
+      <label class="lbl" for="speed">Speed</label>
+      <select id="speed">
+        <option value="2">2 turns/s</option><option value="4">4 turns/s</option><option value="8" selected>8 turns/s</option>
+        <option value="16">16 turns/s</option><option value="32">32 turns/s</option>
+      </select>
+    </div>
+    <div class="grp" aria-label="Layers">
+      <label class="chk"><input type="checkbox" id="L-belief" checked>Belief</label>
+      <label class="chk"><input type="checkbox" id="L-fog" checked>Fog</label>
+      <label class="chk"><input type="checkbox" id="L-path" checked>Path</label>
+      <label class="chk"><input type="checkbox" id="L-truth" checked>Truth</label>
+      <label class="chk"><input type="checkbox" id="L-fullmap">Full map</label>
+      <label class="chk"><input type="checkbox" id="L-legend">Legend</label>
+    </div>
+    <div class="meta" id="meta"></div>
+  </div>
+
+  <div class="stage">
+    <canvas id="c" width="1280" height="760" aria-label="Replay of the mission"></canvas>
+    <div class="loading" id="loading">loading mission&hellip;</div>
+  </div>
+  <p class="narrow">Best on a laptop or tablet: on a phone, turn it sideways or pinch to zoom.</p>
+  <input type="range" class="scrub" id="scrub" min="0" max="1" value="0" aria-label="Turn">
+  <div class="help">Keys: <kbd>space</kbd> play/pause &middot; <kbd>&larr;</kbd><kbd>&rarr;</kbd> step &middot; <kbd>+</kbd><kbd>-</kbd> speed &middot;
+    <kbd>B</kbd> belief &middot; <kbd>F</kbd> fog &middot; <kbd>P</kbd> path &middot; <kbd>T</kbd> truth &middot; <kbd>M</kbd> full map &middot;
+    <kbd>L</kbd> legend &middot; click the timeline to jump.</div>
+
+  <section class="read" aria-label="How to read the replay">
+    <div><h2>The belief</h2><p><span class="sw" style="background:#50d2dc"></span>Teal glow: where the agent thinks the princess is, brighter = more likely.
+      Solid outline: the smallest area holding 50% of that probability; dashed: 90%. The diamond marks the single most likely cell.</p></div>
+    <div><h2>Sensors</h2><p>Each scan sends out a ring to its range:
+      <span class="sw" style="background:#f5aa3c"></span>thermal (heat, 50 m),
+      <span class="sw" style="background:#6edc78"></span>radar (heartbeats through walls, 20 m),
+      <span class="sw" style="background:#6ea5ff"></span>LIDAR (walls and shapes, 10 m),
+      <span class="sw" style="background:#fff58c"></span>camera (4 cells ahead, gives a label).</p></div>
+    <div><h2>Decoys</h2><p>Braziers and hearths are hot, dogs have heartbeats, suits of armour are person-shaped. Only the full signature
+      (warm, heartbeat, human shape and a camera <i>target</i> label) convinces the agent.</p></div>
+    <div><h2>Battery</h2><p>Every action costs battery. A safety rule keeps enough charge to walk home to a hearth; near the end an
+      <b>endgame override</b> weighs going home against pushing on while she is still alive.</p></div>
+  </section>
+
+  <footer>Code, README and how to run it yourself:
+    <a href="https://github.com/0-Playor-0/walle-eve-signal">github.com/0-Playor-0/walle-eve-signal</a>.
+    Pixel font: Silkscreen (SIL Open Font License). Sprites are drawn procedurally.</footer>
+</div>
+
+<script>
+"use strict";
+const MISSION_NAMES = { clean_rescue: "Clean rescue", decoy_recovery: "Decoy recovery", override_recharge: "Override + recharge" };
+const W = 1280, H = 760;
+const MIND = { x: 10, y: 64, w: 500, h: 500 }, TRUTH = { x: 520, y: 64, w: 500, h: 500 }, RECEIPT = { x: 1030, y: 64, w: 240, h: 500 };
+const BAR = { x: 10, y: 576, w: 1260, h: 176 };
+const TL = { x: BAR.x + 12, y: BAR.y + BAR.h - 46, w: BAR.w - 24, h: 12 };
+const CAM = 31, PING_MS = 400;
+const MONO = '13px ui-monospace, Menlo, "DejaVu Sans Mono", Consolas, monospace';
+const SMALL = '11px ui-monospace, Menlo, "DejaVu Sans Mono", Consolas, monospace';
+const NUM = 'bold 20px ui-monospace, Menlo, "DejaVu Sans Mono", Consolas, monospace';
+const TITLE = '700 20px Silkscreen, monospace', HEAD = '400 12px Silkscreen, monospace', HUGE = '700 36px Silkscreen, monospace';
+const DIRS = { N: [0, -1], E: [1, 0], S: [0, 1], W: [-1, 0] };
+
+const cv = document.getElementById("c"), ctx = cv.getContext("2d");
+ctx.imageSmoothingEnabled = false;
+let PAL, TH, SPR_IDX, SPR_IMG, INDEX;
+let run = null, castle = null, i = 0, playing = true, tps = 8, acc = 0, lastT = 0, pingStart = 0, pingKey = null;
+const layers = { belief: true, fog: true, path: true, truth: true, legend: false, fullmap: false };
+const mindCache = new Map();
+
+const rgb = (c, a) => a === undefined ? `rgb(${c[0]},${c[1]},${c[2]})` : `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+const lerp = (a, b, f) => a.map((v, k) => Math.round(v + (b[k] - v) * f));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function b64(s) { const bin = atob(s), u = new Uint8Array(bin.length); for (let k = 0; k < bin.length; k++) u[k] = bin.charCodeAt(k); return u; }
+function loadImg(src) { return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+function text(s, x, y, font, col, align) { ctx.font = font || MONO; ctx.fillStyle = col || rgb(TH.text); ctx.textAlign = align || "left";
+  ctx.textBaseline = "top"; ctx.fillText(s, x, y); return ctx.measureText(s).width; }
+function rr(x, y, w, h, r, fill) { ctx.beginPath(); ctx.roundRect(x, y, w, h, r); ctx.fillStyle = fill; ctx.fill(); }
+function sprite(name, frame, x, y, size, flip, rot) {
+  const row = SPR_IDX[name]; if (row === undefined) return;
+  ctx.save(); ctx.translate(x + size / 2, y + size / 2);
+  if (flip) ctx.scale(-1, 1); if (rot) ctx.rotate(rot);
+  ctx.drawImage(SPR_IMG, 16 * (frame % 4), 16 * row, 16, 16, -size / 2, -size / 2, size, size); ctx.restore();
+}
+function wrap(s, width, font) {
+  ctx.font = font || MONO; const words = s.split(/\s+/), lines = []; let cur = "";
+  for (const w of words) { const t = (cur + " " + w).trim(); if (ctx.measureText(t).width > width && cur) { lines.push(cur); cur = w; } else cur = t; }
+  if (cur) lines.push(cur); return lines;
+}
+function panel(r, title) { rr(r.x - 3, r.y - 24, r.w + 6, r.h + 28, 6, rgb(TH.panel)); text(title.toUpperCase(), r.x + 2, r.y - 18, HEAD, rgb(TH.accent)); }
+
+// ---------------------------------------------------------------- the agent's mind
+function mindLayer(f) {
+  const key = `${i}|${layers.belief}|${layers.fog}`;
+  if (mindCache.has(key)) return mindCache.get(key);
+  const m = f.mind, w = m.w, h = m.h, cells = b64(m.cells), glow = b64(m.glow);
+  const oc = document.createElement("canvas"); oc.width = w; oc.height = h;
+  const oct = oc.getContext("2d"), img = oct.createImageData(w, h);
+  const fog = layers.fog ? TH.fog : TH.free.map(v => v * 0.7), cols = [fog, TH.free, TH.wall, TH.oob];
+  const occ = idx => cells[idx] & 3;
+  for (let x = 0; x < w; x++) for (let y = 0; y < h; y++) {
+    const idx = x * h + y, o = occ(idx); let c = cols[o].slice();
+    if (o === 0 && layers.fog) {
+      const known = (xx, yy) => xx >= 0 && yy >= 0 && xx < w && yy < h && (occ(xx * h + yy) === 1 || occ(xx * h + yy) === 2);
+      if (known(x - 1, y) || known(x + 1, y) || known(x, y - 1) || known(x, y + 1)) c = fog.map(v => v * PAL.fog_edge);
+    }
+    if (layers.belief && glow[idx] > 0) {
+      const a = glow[idx] / 255, col = PAL.belief.map((v, k) => v + (PAL.belief_peak[k] - v) * a * a * a), al = a * PAL.belief_alpha;
+      c = c.map((v, k) => v * (1 - al) + col[k] * al);
+    }
+    const p = (y * w + x) * 4; img.data[p] = c[0]; img.data[p + 1] = c[1]; img.data[p + 2] = c[2]; img.data[p + 3] = 255;
+  }
+  oct.putImageData(img, 0, 0);
+  const edges = [[], []];  // [90%, 50%]: [x0, y0, x1, y1] in cells
+  if (layers.belief) for (const [bit, out] of [[4, edges[0]], [8, edges[1]]]) {
+    const inn = (x, y) => x >= 0 && y >= 0 && x < w && y < h && (cells[x * h + y] & bit) !== 0;
+    for (let x = 0; x <= w; x++) for (let y = 0; y < h; y++) if (inn(x - 1, y) !== inn(x, y)) out.push([x, y, x, y + 1]);
+    for (let x = 0; x < w; x++) for (let y = 0; y <= h; y++) if (inn(x, y - 1) !== inn(x, y)) out.push([x, y, x + 1, y]);
+  }
+  const s = Math.min(MIND.w / w, MIND.h / h), size = [w * s, h * s];
+  const L = { oc, edges, s, size, ox: MIND.x + (MIND.w - size[0]) / 2, oy: MIND.y + (MIND.h - size[1]) / 2, x0: m.x0, y0: m.y0, w, h };
+  if (mindCache.size > 40) mindCache.delete(mindCache.keys().next().value);
+  mindCache.set(key, L); return L;
+}
+
+function drawMind(f, now, tick) {
+  panel(MIND, "Agent's mind  (its own frame; fog = unknown)");
+  const L = mindLayer(f), { s, ox, oy } = L;
+  const P = c => [ox + (c[0] - L.x0 + 0.5) * s, oy + (c[1] - L.y0 + 0.5) * s];
+  ctx.imageSmoothingEnabled = false; ctx.drawImage(L.oc, ox, oy, L.size[0], L.size[1]);
+  ctx.save(); ctx.beginPath(); ctx.rect(ox, oy, L.size[0], L.size[1]); ctx.clip();
+  for (const [k, segs] of L.edges.entries()) {
+    const dashed = k === 0; ctx.strokeStyle = rgb(dashed ? PAL.area90 : PAL.area50); ctx.lineWidth = dashed ? 1 : 2; ctx.beginPath();
+    for (const [ax, ay, bx, by] of segs) {
+      let p0 = [ox + ax * s, oy + ay * s], p1 = [ox + bx * s, oy + by * s];
+      if (dashed) { const q0 = [p0[0] * .75 + p1[0] * .25, p0[1] * .75 + p1[1] * .25], q1 = [p0[0] * .25 + p1[0] * .75, p0[1] * .25 + p1[1] * .75]; p0 = q0; p1 = q1; }
+      ctx.moveTo(p0[0], p0[1]); ctx.lineTo(p1[0], p1[1]);
+    }
+    ctx.stroke();
+  }
+  for (const hz of f.hearths || []) { const [cx, cy] = P(hz), sz = Math.max(8, s * 2.2); sprite("hearth", tick >> 3, cx - sz / 2, cy - sz / 2, sz); }
+  if (layers.path && f.path && f.path.length) {
+    ctx.strokeStyle = rgb(TH.accent); ctx.lineWidth = 2; ctx.beginPath(); const p0 = P(f.pose); ctx.moveTo(p0[0], p0[1]);
+    for (const c of f.path) { const p = P(c); ctx.lineTo(p[0], p[1]); } ctx.stroke();
+  }
+  let goalPt = null;
+  if (f.goal) {
+    const [cx, cy] = P(f.goal), r = Math.max(5, s * 2); goalPt = [cx, cy];
+    ctx.strokeStyle = rgb(PAL.goal); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7);
+    ctx.moveTo(cx - r - 3, cy); ctx.lineTo(cx + r + 3, cy); ctx.moveTo(cx, cy - r - 3); ctx.lineTo(cx, cy + r + 3); ctx.stroke();
+  }
+  for (const [x, y, sig, guess] of f.fused) {
+    const [cx, cy] = P([x, y]); ctx.strokeStyle = rgb(PAL.guess[guess] || PAL.guess.unknown); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(cx, cy, Math.max(3, sig * s), 0, 7); ctx.stroke();
+  }
+  drawScan(f, P, s, now);
+  const me = P(f.pose);
+  const pk = f.mind.peak;
+  if (layers.belief && pk) {
+    const [cx, cy] = P(pk), r = Math.max(4, s * 0.9);
+    ctx.fillStyle = "#000"; diamond(cx, cy, r + 1.5); ctx.fillStyle = rgb(PAL.peak); diamond(cx, cy, r);
+    const label = pk[2] >= 0.01 ? `P = ${pk[2].toFixed(2)}` : `P = ${pk[2].toFixed(3)}`;
+    ctx.font = SMALL; const tw = ctx.measureText(label).width + 8, th = 15;
+    // place the label on the side farthest from the agent and the goal
+    const avoid = [me, goalPt].filter(Boolean), cand = [[r + 6, -th / 2], [-r - 6 - tw, -th / 2], [-tw / 2, -r - 6 - th], [-tw / 2, r + 6]];
+    let best = cand[0], bestD = -1;
+    for (const [dx, dy] of cand) {
+      const bx = cx + dx + tw / 2, by = cy + dy + th / 2;
+      const inside = cx + dx > ox && cx + dx + tw < ox + L.size[0] && cy + dy > oy && cy + dy + th < oy + L.size[1];
+      const d = Math.min(...avoid.map(a => Math.hypot(a[0] - bx, a[1] - by)), 999) + (inside ? 1000 : 0);
+      if (d > bestD) { bestD = d; best = [dx, dy]; }
+    }
+    rr(cx + best[0], cy + best[1], tw, th, 4, "rgba(8,10,16,0.82)"); text(label, cx + best[0] + 4, cy + best[1] + 2, SMALL, rgb(PAL.peak));
+  }
+  const sz = Math.max(10, s * 3); sprite("knight_m", tick >> 3, me[0] - sz / 2, me[1] - sz + sz / 2, sz, f.facing === "W");
+  ctx.restore();
+  text(`view x${L.x0}-${L.x0 + L.w - 1} y${L.y0}-${L.y0 + L.h - 1}`, MIND.x + 4, MIND.y + MIND.h - 16, SMALL, rgb(TH.dim));
+  if (layers.legend) legend();
+}
+function diamond(cx, cy, r) { ctx.beginPath(); ctx.moveTo(cx, cy - r); ctx.lineTo(cx + r, cy); ctx.lineTo(cx, cy + r); ctx.lineTo(cx - r, cy); ctx.closePath(); ctx.fill(); }
+
+function drawScan(f, P, s, now) {
+  const sc = f.scan; if (!sc) return;
+  const col = PAL.sensor[sc.kind] || PAL.goal;
+  if (sc.kind === "cv") {
+    const [dx, dy] = DIRS[sc.facing], lx = -dy, ly = dx, [px, py] = sc.pose;
+    ctx.strokeStyle = rgb(col); ctx.lineWidth = 2;
+    for (const c of [[px + dx, py + dy], ...[-1, 0, 1].map(k => [px + 2 * dx + k * lx, py + 2 * dy + k * ly])]) {
+      const [cx, cy] = P(c); ctx.strokeRect(cx - s / 2, cy - s / 2, Math.max(2, s), Math.max(2, s));
+    }
+    return;
+  }
+  const R = (run.ranges[sc.kind] || 0) * s; if (!R) return;
+  const key = `${i}|${sc.kind}`; if (pingKey !== key) { pingKey = key; pingStart = now; }
+  const frac = Math.min(1, (now - pingStart) / PING_MS), reach = R * frac, o = P(sc.pose);
+  if (frac < 1) { ctx.strokeStyle = rgb(col, (PAL.ping_alpha * (1 - frac) + 20) / 255); ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(o[0], o[1], Math.max(2, reach), 0, 7); ctx.stroke(); }
+  else { ctx.strokeStyle = rgb(col, 0.16); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(o[0], o[1], R, 0, 7); ctx.stroke(); }
+  const rd = f.read || {}, seen = c => Math.hypot(c[0] - o[0], c[1] - o[1]) <= reach + 1;
+  if (sc.kind === "thermal") for (const [x, y, rad] of rd.thermal || []) { const c = P([x, y]); if (!seen(c)) continue;
+    ctx.fillStyle = rgb(col, 0.8); ctx.beginPath(); ctx.arc(c[0], c[1], Math.min(7, Math.max(2, rad * s * 0.22)), 0, 7); ctx.fill(); }
+  if (sc.kind === "radar") for (const [x, y] of rd.radar || []) { const c = P([x, y]); if (!seen(c)) continue;
+    const ph = (now % 700) / 700; ctx.fillStyle = rgb(col, 0.9); ctx.beginPath(); ctx.arc(c[0], c[1], Math.max(2, s * .5), 0, 7); ctx.fill();
+    ctx.strokeStyle = rgb(col, 0.8 * (1 - ph)); ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(c[0], c[1], Math.max(3, s * (.8 + 2 * ph)), 0, 7); ctx.stroke(); }
+  if (sc.kind === "lidar") for (const [x, y] of rd.lidar || []) { const c = P([x, y]); if (!seen(c)) continue;
+    ctx.strokeStyle = rgb(col, 0.9); ctx.lineWidth = 1; ctx.strokeRect(c[0] - s / 2, c[1] - s / 2, Math.max(3, s), Math.max(3, s)); }
+}
+
+function legend() {
+  const rows = [["glow", "belief: brighter = more likely"], ["solid", "50% likely area"], ["dashed", "90% likely area"], ["diamond", "most likely cell"],
+    ...["thermal", "radar", "lidar", "cv"].map(k => ["ring:" + k, k === "cv" ? "camera scan" : k + " scan"]),
+    ...["target?", "living?", "dog", "fire?", "hearth", "armour", "unknown"].map(g => ["guess:" + g, "track: " + g])];
+  const bx = MIND.x + 8, by = MIND.y + 8; rr(bx, by, 236, 14 * rows.length + 14, 6, "rgba(10,12,18,0.86)");
+  rows.forEach(([k, label], n) => {
+    const y = by + 8 + n * 14, cx = bx + 14;
+    if (k === "glow") for (let j = 0; j < 5; j++) { const a = j / 4; ctx.fillStyle = rgb(lerp(PAL.belief, PAL.belief_peak, a * a * a)); ctx.fillRect(bx + 6 + j * 4, y + 2, 4, 9); }
+    else if (k === "solid") { ctx.strokeStyle = rgb(PAL.area50); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(bx + 6, y + 6); ctx.lineTo(bx + 24, y + 6); ctx.stroke(); }
+    else if (k === "dashed") { ctx.strokeStyle = rgb(PAL.area90); ctx.lineWidth = 1; ctx.beginPath(); for (let j = 0; j < 3; j++) { ctx.moveTo(bx + 6 + 7 * j, y + 6); ctx.lineTo(bx + 10 + 7 * j, y + 6); } ctx.stroke(); }
+    else if (k === "diamond") { ctx.fillStyle = rgb(PAL.peak); diamond(cx, y + 6, 5); }
+    else { const c = k.startsWith("ring:") ? PAL.sensor[k.slice(5)] : PAL.guess[k.slice(6)]; ctx.strokeStyle = rgb(c); ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, y + 6, 5, 0, 7); ctx.stroke(); }
+    text(label, bx + 32, y, SMALL, rgb(TH.text));
+  });
+}
+
+// ---------------------------------------------------------------- ground truth
+function drawTruth(f, tick) {
+  panel(TRUTH, "Ground truth" + (layers.fullmap ? "  (full map)" : "  (camera on the rescuer)"));
+  if (!layers.truth) { ctx.fillStyle = rgb(TH.fog); ctx.fillRect(TRUTH.x, TRUTH.y, TRUTH.w, TRUTH.h);
+    text("truth layer off (T)", TRUTH.x + TRUTH.w / 2, TRUTH.y + TRUTH.h / 2 - 8, MONO, rgb(TH.dim), "center"); return; }
+  const tr = f.truth, n = run.n, [rx, ry] = tr.r;
+  let cell, cx0 = 0, cy0 = 0;
+  ctx.save(); ctx.beginPath(); ctx.rect(TRUTH.x, TRUTH.y, TRUTH.w, TRUTH.h); ctx.clip();
+  ctx.fillStyle = "#000"; ctx.fillRect(TRUTH.x, TRUTH.y, TRUTH.w, TRUTH.h);
+  if (layers.fullmap) { cell = TRUTH.w / n; ctx.imageSmoothingEnabled = true; ctx.drawImage(castle, TRUTH.x, TRUTH.y, TRUTH.w, TRUTH.h); ctx.imageSmoothingEnabled = false; }
+  else { cell = 16; cx0 = clamp(rx - (CAM >> 1), 0, n - CAM); cy0 = clamp(ry - (CAM >> 1), 0, n - CAM);
+    ctx.drawImage(castle, cx0 * 16, cy0 * 16, CAM * 16, CAM * 16, TRUTH.x, TRUTH.y, CAM * 16, CAM * 16); }
+  const P = c => [TRUTH.x + (c[0] - cx0) * cell, TRUTH.y + (c[1] - cy0) * cell];
+  const trail = []; for (let k = Math.max(0, i - 600); k <= i; k++) trail.push(run.frames[k].truth.r);
+  if (trail.length > 1) { ctx.strokeStyle = rgb(PAL.trail); ctx.lineWidth = layers.fullmap ? 1 : 2; ctx.beginPath();
+    trail.forEach((c, k) => { const p = P(c); k ? ctx.lineTo(p[0] + cell / 2, p[1] + cell / 2) : ctx.moveTo(p[0] + cell / 2, p[1] + cell / 2); }); ctx.stroke(); }
+  const dogs = new Map(tr.dogs.map(d => [d[0], [d[1], d[2]]]));
+  const ents = run.entities.map(e => [e.kind, e.kind === "dog" ? (dogs.get(e.id) || e.pos) : e.pos, e.id]);
+  if (layers.fullmap) {
+    for (const [kind, pos] of ents) { const [x, y] = P(pos); ctx.fillStyle = rgb(PAL.entity_dot[kind]); ctx.beginPath(); ctx.arc(x + cell / 2, y + cell / 2, 3, 0, 7); ctx.fill(); }
+    for (const [pos, col] of [[tr.g, tr.alive ? PAL.target : PAL.dead], [tr.r, PAL.rescuer]]) { const [x, y] = P(pos);
+      ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(x + cell / 2, y + cell / 2, 6, 0, 7); ctx.fill();
+      ctx.fillStyle = rgb(col); ctx.beginPath(); ctx.arc(x + cell / 2, y + cell / 2, 5, 0, 7); ctx.fill(); }
+    ctx.restore(); return;
+  }
+  for (const [kind, pos, id] of ents) if (kind === "torch" || kind === "hearth") {
+    const [x, y] = P(pos), c = kind === "torch" ? PAL.torch_light : PAL.hearth_light;
+    const fl = kind === "torch" ? 0.85 + 0.15 * Math.sin(tick * 0.35 + id * 1.7) : 0.95, r = 1.6 * cell;
+    const g = ctx.createRadialGradient(x + cell / 2, y + cell / 2, 0, x + cell / 2, y + cell / 2, r);
+    g.addColorStop(0, rgb(c, 0.42 * fl)); g.addColorStop(0.5, rgb(c, 0.16 * fl)); g.addColorStop(1, rgb(c, 0));
+    ctx.fillStyle = g; ctx.fillRect(x + cell / 2 - r, y + cell / 2 - r, 2 * r, 2 * r);
+  }
+  for (const [kind, pos, id] of ents) { const [x, y] = P(pos); sprite(kind, (tick + id * 3) >> 2, x, y, cell); }
+  const [tx, ty] = P(tr.g); sprite("princess", tick >> 3, tx, ty, cell, false, tr.alive ? 0 : -Math.PI / 2);
+  const bw = Math.max(12, cell); ctx.fillStyle = rgb(PAL.energy_bg); ctx.fillRect(tx + cell / 2 - bw / 2, ty - 6, bw, 4);
+  const e = clamp(tr.e, 0, 1); ctx.fillStyle = rgb(lerp(PAL.energy_lo, PAL.energy_hi, e)); ctx.fillRect(tx + cell / 2 - bw / 2, ty - 6, bw * e, 4);
+  const [x, y] = P([rx, ry]); sprite("knight_m", tick >> 3, x, y, cell, tr.f === "W");
+  ctx.restore();
+  // minimap
+  const mx = TRUTH.x + TRUTH.w - 108, my = TRUTH.y + 6, k = 100 / n;
+  ctx.globalAlpha = 0.86; ctx.imageSmoothingEnabled = true; ctx.drawImage(castle, mx, my, 100, 100); ctx.imageSmoothingEnabled = false; ctx.globalAlpha = 1;
+  ctx.strokeStyle = rgb(PAL.minimap_frame); ctx.lineWidth = 1; ctx.strokeRect(mx + cx0 * k, my + cy0 * k, CAM * k, CAM * k);
+  for (const [pos, col] of [[tr.g, PAL.target], [tr.r, PAL.rescuer]]) { ctx.fillStyle = rgb(col); ctx.beginPath(); ctx.arc(mx + pos[0] * k, my + pos[1] * k, 2.2, 0, 7); ctx.fill(); }
+}
+
+// ---------------------------------------------------------------- receipts
+function receiptRows() {
+  const out = [];
+  for (let k = Math.max(0, i - 160); k <= i; k++) {
+    const r = run.frames[k].rc, last = out[out.length - 1];
+    if (r.kind === "move" && !r.res && last && last.kind === "move" && !last.res) { last.t1 = r.t; last.n = (last.n || 1) + 1; last.cost += r.cost; last.bal = r.bal; }
+    else out.push({ ...r });
+  }
+  return out;
+}
+function drawReceipts() {
+  panel(RECEIPT, "Receipts"); ctx.fillStyle = rgb(TH.inset); ctx.fillRect(RECEIPT.x, RECEIPT.y, RECEIPT.w, RECEIPT.h);
+  const lh = 13, rows = [];
+  for (const r of receiptRows()) {
+    let head;
+    if ((r.n || 1) > 1) head = `t=${r.t}-${r.t1} MOVE x${r.n} -${r.cost.toFixed(1)}%`;
+    else head = `t=${r.t} ${r.act} ${r.cost ? "-" + r.cost.toFixed(1) + "%" : (r.kind === "charge" ? r.res : "0%")}`;
+    const body = r.res && r.kind !== "charge" ? "  " + r.res.replace(/\b1 shapes\b/, "1 shape").replace(/\b1 walls\b/, "1 wall").replace(/, /g, " \u00b7 ") : "";
+    wrap(head + body, RECEIPT.w - 54, SMALL).forEach((l, j) => rows.push([l, r, j === 0]));
+  }
+  const vis = rows.slice(-Math.floor(RECEIPT.h / lh));
+  vis.forEach(([l, r, first], n) => {
+    const y = RECEIPT.y + 2 + n * lh, col = PAL.receipt[r.kind] || TH.text;
+    if (r.flag) { ctx.fillStyle = rgb(col, 0.16); ctx.fillRect(RECEIPT.x, y - 1, RECEIPT.w, lh); if (first) { ctx.fillStyle = rgb(col); ctx.fillRect(RECEIPT.x + 1, y + 2, 3, 8); } }
+    text(l, RECEIPT.x + 8, y, SMALL, rgb(col));
+    if (first) text(`${r.bal.toFixed(1)}%`, RECEIPT.x + RECEIPT.w - 6, y, SMALL, rgb(TH.dim), "right");
+  });
+}
+
+// ---------------------------------------------------------------- bottom bar
+function bar(x, y, w, h, frac, col) { rr(x, y, w, h, 3, rgb(PAL.bar_bg)); if (frac > 0) rr(x, y, Math.max(3, w * clamp(frac, 0, 1)), h, 3, rgb(col)); }
+function drawBar(f) {
+  rr(BAR.x, BAR.y, BAR.w, BAR.h, 6, rgb(TH.panel));
+  const x = BAR.x + 12, y = BAR.y + 10;
+  text("BATTERY", x, y, SMALL, rgb(TH.dim));
+  bar(x, y + 14, 260, 16, f.bat / 100, lerp(PAL.battery_lo, PAL.battery_hi, f.bat / 100)); text(`${f.bat.toFixed(1)}%`, x + 266, y + 15);
+  // life bar: the agent's estimate with its 10-90% band, the truth as a pink tick
+  const lx = x + 350, life = f.life || [0, 0, 0], [mean, p10, p90] = life.map(v => v || 0), tl = layers.truth ? f.truth.rl : null;
+  const top = Math.max(p90, mean, tl || 0, 1) * 1.08;
+  rr(lx, y + 14, 300, 16, 3, rgb(PAL.bar_bg)); rr(lx + 300 * p10 / top, y + 14, Math.max(2, 300 * (p90 - p10) / top), 16, 3, rgb(PAL.life_band));
+  ctx.strokeStyle = rgb(PAL.life); ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(lx + 300 * mean / top, y + 13); ctx.lineTo(lx + 300 * mean / top, y + 30); ctx.stroke();
+  let label = `LIFE LEFT  est ${mean.toFixed(0)}  (10-90%: ${p10.toFixed(0)}-${p90.toFixed(0)})`;
+  if (tl !== null) { const tx = lx + 300 * tl / top; ctx.fillStyle = rgb(PAL.life_true); ctx.beginPath(); ctx.moveTo(tx - 5, y + 37); ctx.lineTo(tx + 5, y + 37); ctx.lineTo(tx, y + 31); ctx.fill();
+    ctx.strokeStyle = rgb(PAL.life_true); ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(tx, y + 14); ctx.lineTo(tx, y + 30); ctx.stroke(); label += `  true ${tl.toFixed(0)}`; }
+  text(label, lx, y, SMALL, rgb(TH.dim));
+  const mode = f.mode || "-"; rr(x + 990, y + 10, 96, 22, 4, rgb(PAL.mode[mode] || PAL.mode_other)); text(mode.toUpperCase(), x + 1038, y + 14, MONO, rgb(PAL.mode_text), "center");
+  text(`TURN ${f.t}`, x + 1100, y + 9, NUM);
+  const row2 = y + 42;
+  let info = `moves ${Math.round(100 * f.pmove)}% of turns (estimate)`;
+  if (layers.truth) info += `   truth: princess energy ${f.truth.e.toFixed(2)}` + (f.truth.alive ? "" : "  (DEAD)");
+  text(info, x, row2 + 6, MONO, layers.truth ? rgb(PAL.life_true) : rgb(TH.dim));
+  if (f.ov) {
+    const plans = Object.entries(f.ov.plans).map(([k, v]) => `${k} ${v.toFixed(2)}`).join("  |  ");
+    const msg = `ENDGAME OVERRIDE   ${plans}   ->  ${f.ov.choice.toUpperCase()}`; ctx.font = MONO; const w = ctx.measureText(msg).width + 24;
+    rr(BAR.x + BAR.w - w - 12, row2, w, 26, 6, rgb(PAL.override_bg)); text(msg, BAR.x + BAR.w - w, row2 + 6, MONO, rgb(PAL.override_text));
+  }
+  wrap("Reasoning: " + (f.reason || ""), BAR.w - 30).slice(0, 2).forEach((l, n) => text(l, x, y + 76 + 17 * n, MONO, n ? rgb(TH.text) : rgb(TH.accent)));
+  drawTimeline(f.t);
+}
+const EV_ORDER = ["charge", "thermal", "radar", "lidar", "cv", "override"];
+function drawTimeline() {
+  const nT = Math.max(run.frames.length, 2), r = TL;
+  let lx = r.x; const ly = r.y - 16;
+  for (const [cols, name] of [[["thermal", "radar", "lidar"], "detections (thermal, radar, LIDAR)"], [["cv"], "camera label"], [["charge"], "charge"], [["override"], "override"]]) {
+    for (const c of cols) { ctx.fillStyle = rgb(PAL.event[c]); ctx.fillRect(lx, ly + 3, 6, 6); lx += 8; }
+    lx += 4 + text(name, lx, ly, SMALL, rgb(TH.dim)) + 14;
+  }
+  rr(r.x, r.y, r.w, r.h, 3, rgb(PAL.timeline_bg));
+  run.frames.forEach((fr, t) => { if (!fr.ev.length) return; const xx = r.x + r.w * t / (nT - 1);
+    for (const k of [...new Set(fr.ev)].sort((a, b) => EV_ORDER.indexOf(a) - EV_ORDER.indexOf(b))) {
+      const big = k === "cv" || k === "override"; ctx.strokeStyle = rgb(PAL.event[k]); ctx.lineWidth = big ? 2 : 1;
+      ctx.beginPath(); ctx.moveTo(xx, big ? r.y : r.y + 3); ctx.lineTo(xx, r.y + r.h - 1); ctx.stroke(); } });
+  const cx = r.x + r.w * i / (nT - 1); ctx.strokeStyle = rgb(PAL.cursor); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(cx, r.y - 4); ctx.lineTo(cx, r.y + r.h + 3); ctx.stroke();
+  ctx.fillStyle = rgb(PAL.cursor); ctx.beginPath(); ctx.moveTo(cx - 5, r.y - 8); ctx.lineTo(cx + 5, r.y - 8); ctx.lineTo(cx, r.y - 3); ctx.fill();
+  text("space play/pause   <-/-> step   +/- speed   click timeline: jump   B belief  F fog  P path  T truth  M full map  L legend", BAR.x + 12, BAR.y + BAR.h - 18, SMALL, rgb(TH.dim));
+}
+
+// ---------------------------------------------------------------- frame
+function draw(now) {
+  const f = run.frames[i], tick = Math.floor(now / 33);
+  ctx.fillStyle = rgb(TH.bg); ctx.fillRect(0, 0, W, H);
+  const title = TH.title.toUpperCase(); const tw = text(title, 12, 12, TITLE, rgb(TH.accent));
+  text(`${run.location} weather ${run.weather}  ·  seed ${run.seed}  ·  life budget k = ${run.k}`, 12 + tw + 16, 18, SMALL, rgb(TH.dim));
+  drawMind(f, now, tick); drawTruth(f, tick); drawReceipts(); drawBar(f);
+  if (f.outcome && layers.truth) {
+    const word = { rescued: "RESCUED!", target_died: "TOO LATE...", battery_depleted: "OUT OF BATTERY", step_cap: "TIME UP" }[f.outcome] || f.outcome.toUpperCase();
+    ctx.font = HUGE; const w = ctx.measureText(word).width, cx = TRUTH.x + TRUTH.w / 2, cy = TRUTH.y + TRUTH.h / 2;
+    rr(cx - w / 2 - 15, cy - 30, w + 30, 60, 8, "rgba(0,0,0,0.88)"); text(word, cx, cy - 20, HUGE, rgb(f.outcome === "rescued" ? PAL.outcome_good : PAL.outcome_bad), "center");
+  }
+}
+function loop(now) {
+  requestAnimationFrame(loop);  // schedule first: one bad frame must never stop the replay
+  if (!run) return;
+  const dt = lastT ? Math.min(0.25, (now - lastT) / 1000) : 0; lastT = now;
+  i = clamp(i, 0, run.frames.length - 1);
+  if (playing) { acc += dt * tps; while (acc >= 1) { acc -= 1; if (i < run.frames.length - 1) i++; else { playing = false; syncUI(); } } }
+  try { draw(now); } catch (err) { console.error(err); }
+  scrub.value = i;
+}
+
+// ---------------------------------------------------------------- UI
+const sel = document.getElementById("mission"), scrub = document.getElementById("scrub"), playBtn = document.getElementById("play");
+function syncUI() {
+  playBtn.textContent = playing ? "Pause" : "Play"; playBtn.classList.toggle("on", playing);
+  for (const k of ["belief", "fog", "path", "truth", "fullmap", "legend"]) document.getElementById("L-" + k).checked = layers[k];
+}
+function setLayer(k, v) { layers[k] = v === undefined ? !layers[k] : v; mindCache.clear(); syncUI(); }
+function step(d) { i = clamp(i + d, 0, run.frames.length - 1); playing = false; syncUI(); }
+async function loadMission(name) {
+  document.getElementById("loading").style.display = "grid"; run = null; mindCache.clear();
+  const [data, img] = await Promise.all([fetch(`replay/${name}.json`).then(r => r.json()), loadImg(`replay/${name}_castle.png`)]);
+  run = data; castle = img; i = 0; acc = 0; playing = true; tps = Number(document.getElementById("speed").value);
+  TH = Object.assign({}, THEMES_ALL[run.theme] || THEMES_ALL.castle);
+  scrub.max = run.frames.length - 1;
+  const last = run.frames[run.frames.length - 1];
+  document.getElementById("meta").textContent = `seed ${run.seed} · k = ${run.k} · ${run.frames.length} turns · ${(last.outcome || "").replace("_", " ")}`;
+  document.getElementById("loading").style.display = "none"; syncUI();
+  try { history.replaceState(null, "", "#" + name); } catch (e) {}
+}
+let THEMES_ALL;
+(async function init() {
+  const [pal, idx, img, index] = await Promise.all([fetch("replay/palette.json").then(r => r.json()), fetch("replay/sprites.json").then(r => r.json()),
+    loadImg("replay/sprites.png"), fetch("replay/index.json").then(r => r.json())]);
+  PAL = pal.palette; THEMES_ALL = pal.themes; SPR_IDX = idx; SPR_IMG = img; INDEX = index; TH = THEMES_ALL.castle;
+  for (const r of INDEX) { const o = document.createElement("option"); o.value = r.name;
+    o.textContent = `${MISSION_NAMES[r.name] || r.name}  (seed ${r.seed}, k ${r.k})`; sel.appendChild(o); }
+  try { await document.fonts.load(TITLE); await document.fonts.load(HEAD); } catch (e) {}
+  const want = location.hash.slice(1); if (INDEX.some(r => r.name === want)) sel.value = want;
+  await loadMission(sel.value); requestAnimationFrame(loop);
+})().catch(err => { document.getElementById("loading").textContent = "Could not load the replay data (" + err.message + ")."; });
+
+sel.addEventListener("change", () => loadMission(sel.value));
+window.addEventListener("hashchange", () => { const n = location.hash.slice(1); if (INDEX && INDEX.some(r => r.name === n) && (!run || run.name !== n)) { sel.value = n; loadMission(n); } });
+playBtn.addEventListener("click", () => { if (run && i >= run.frames.length - 1) i = 0; playing = !playing; syncUI(); });
+document.getElementById("back").addEventListener("click", () => step(-1));
+document.getElementById("fwd").addEventListener("click", () => step(1));
+document.getElementById("restart").addEventListener("click", () => { i = 0; playing = true; syncUI(); });
+document.getElementById("speed").addEventListener("change", e => { tps = Number(e.target.value); });
+scrub.addEventListener("input", () => { if (!run) return; i = Number(scrub.value); playing = false; syncUI(); });
+for (const k of ["belief", "fog", "path", "truth", "fullmap", "legend"]) document.getElementById("L-" + k).addEventListener("change", e => setLayer(k, e.target.checked));
+cv.addEventListener("click", e => {
+  if (!run) return; const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) * W / b.width, y = (e.clientY - b.top) * H / b.height;
+  if (x >= TL.x - 4 && x <= TL.x + TL.w + 4 && y >= TL.y - 8 && y <= TL.y + TL.h + 8) { i = Math.round(clamp((x - TL.x) / TL.w, 0, 1) * (run.frames.length - 1)); playing = false; syncUI(); }
+});
+cv.addEventListener("mousemove", e => { const b = cv.getBoundingClientRect(), x = (e.clientX - b.left) * W / b.width, y = (e.clientY - b.top) * H / b.height;
+  cv.style.cursor = (x >= TL.x && x <= TL.x + TL.w && y >= TL.y - 8 && y <= TL.y + TL.h + 8) ? "pointer" : "default"; });
+document.addEventListener("keydown", e => {
+  if (!run || ["SELECT", "INPUT", "BUTTON"].includes(e.target.tagName) || e.metaKey || e.ctrlKey) return;  // native controls handle their own keys
+  const k = e.key.toLowerCase(), speeds = [2, 4, 8, 16, 32], sp = document.getElementById("speed");
+  if (k === " ") { e.preventDefault(); playBtn.click(); }
+  else if (k === "arrowright") { e.preventDefault(); step(1); } else if (k === "arrowleft") { e.preventDefault(); step(-1); }
+  else if (k === "home") { i = 0; } else if (k === "end") { i = run.frames.length - 1; }
+  else if (k === "+" || k === "=") { const n = speeds.find(s => s > tps); if (n) { tps = n; sp.value = n; } }
+  else if (k === "-") { const n = [...speeds].reverse().find(s => s < tps); if (n) { tps = n; sp.value = n; } }
+  else if (k === "b") setLayer("belief"); else if (k === "f") setLayer("fog"); else if (k === "p") setLayer("path");
+  else if (k === "t") setLayer("truth"); else if (k === "m") setLayer("fullmap"); else if (k === "l") setLayer("legend");
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,23 @@
+[
+ {
+  "name": "clean_rescue",
+  "seed": 267,
+  "k": 1.3,
+  "turns": 62,
+  "outcome": "rescued"
+ },
+ {
+  "name": "decoy_recovery",
+  "seed": 396,
+  "k": 1.3,
+  "turns": 127,
+  "outcome": "rescued"
+ },
+ {
+  "name": "override_recharge",
+  "seed": 307,
+  "k": 2.0,
+  "turns": 140,
+  "outcome": "rescued"
+ }
+]
