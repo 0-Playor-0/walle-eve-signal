@@ -59,24 +59,12 @@ def cmd_batch(a) -> None:
     out = Path(a.out) if a.out else ROOT / "runs" / f"batch_{time.strftime('%Y%m%d_%H%M%S')}"
     out.mkdir(parents=True, exist_ok=True)
     jobs = []
-    if a.weathers:
-        # mixed-weather evaluation: one fixed weather per subdirectory, same seeds in each
-        weather = {}
-        for w in a.weathers.split(","):
-            wb = copy.deepcopy(base)
-            wb["world"]["weather"].update(source="fixed", location=w)
-            weather[w] = resolve_weather(resolve_config(wb, 0))["world"]["weather"]["resolved"]
-            for s in _seeds(a.seeds):
-                cfg = resolve_config(copy.deepcopy(wb), s)
-                cfg["world"]["weather"]["resolved"] = dict(weather[w])
-                jobs.append((cfg, out / w / f"seed{s:03d}"))
-    else:
-        # fetch the weather once for the whole batch so every mission sees the same conditions
-        weather = resolve_weather(resolve_config(base, 0))["world"]["weather"]["resolved"]
-        for s in _seeds(a.seeds):
-            cfg = resolve_config(copy.deepcopy(base), s)
-            cfg["world"]["weather"]["resolved"] = dict(weather)
-            jobs.append((cfg, out / f"seed{s:03d}"))
+    # fetch the weather once for the whole batch so every mission sees the same conditions
+    weather = resolve_weather(resolve_config(base, 0))["world"]["weather"]["resolved"]
+    for s in _seeds(a.seeds):
+        cfg = resolve_config(copy.deepcopy(base), s)
+        cfg["world"]["weather"]["resolved"] = dict(weather)
+        jobs.append((cfg, out / f"seed{s:03d}"))
     rows = []
     if a.jobs > 1:
         from concurrent.futures import ProcessPoolExecutor
@@ -143,8 +131,6 @@ def main(argv=None) -> None:
     b.add_argument("--out")
     b.add_argument("--set", action="append", help="override a config value, e.g. world.target.k=1.6")
     b.add_argument("--jobs", type=int, default=1, help="parallel worker processes")
-    b.add_argument("--weathers", help="comma-separated fixed weathers (e.g. bangalore,humid,vellore): "
-                                     "each gets its own subdirectory with the same seeds")
     b.set_defaults(fn=cmd_batch)
     an = sub.add_parser("analyze", help="charts + summary for a batch directory")
     an.add_argument("batch_dir")

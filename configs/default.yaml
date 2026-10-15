@@ -82,17 +82,13 @@ world:
     battery_start: 100.0        # `charge` on a hearth takes one turn and refills to 100%
   weather:
     source: live                # live | fixed
-    location: bangalore         # bangalore | vellore
+    location: bangalore
     timeout_s: 10
     retries: 3                  # attempts before falling back to the fixed values
     coords:
       bangalore: [12.97, 77.59]
-      vellore: [12.92, 79.13]
-      humid: [12.97, 77.59]
     fixed:                      # used when source=fixed or the live fetch fails
       bangalore: {temperature: 26.0, humidity: 65.0, rain: 0.0}
-      vellore: {temperature: 36.0, humidity: 55.0, rain: 0.0}
-      humid: {temperature: 21.8, humidity: 80.0, rain: 0.0}   # a humid Bangalore day
 
 # The agent's beliefs. `perturb` draws each assumed sensor number as true x U(1-perturb, 1+perturb)
 # (seeded); anything written explicitly here overrides the drawn value. Costs are known exactly.

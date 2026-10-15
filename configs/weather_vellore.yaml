@@ -1,6 +1,0 @@
-# Fixed vellore weather (final-test preset): replays identically offline.
-extends: default.yaml
-world:
-  weather:
-    source: fixed
-    location: vellore

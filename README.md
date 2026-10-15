@@ -41,7 +41,7 @@ radar check the candidate, the camera (CV) confirms, and the knight steps in at 
 | Mission report | `report.md` / `report.json` written from the agent's own knowledge, then a ground-truth comparison |
 | Bonus: decoys | dogs (heartbeat), braziers and hearths (heat), suits of armour (human shape) |
 | Bonus: noisy sensors | bearing noise, blurred positions, false alarms, shape confusion, persistent thermal noise, live weather |
-| Bonus: generalisation | random castles per seed, three weathers, three life budgets; evaluated on 1,350 missions |
+| Bonus: generalisation | a new random castle every seed and three life budgets; evaluated on 450 missions the agent never saw while being built |
 | Visualisation | pygame viewer: replay, play as either side, GIF export |
 
 ---
@@ -133,7 +133,6 @@ python -m signalsearch play --as rescuer --seed 3   # you are the knight, seeing
 
 ```bash
 python -m signalsearch batch --seeds 1-20 --jobs 4                     # 20 missions in parallel
-python -m signalsearch batch --seeds 1-20 --weathers bangalore,humid,vellore --jobs 4
 python -m signalsearch analyze runs/batch_<timestamp>                  # charts + summary.md
 python -m signalsearch diagnose runs/<run or batch folder> --jobs 4    # whole-mission pattern report
 ```
@@ -144,7 +143,6 @@ Every number is in the config. Override any of them on the command line, or writ
 
 ```bash
 python -m signalsearch run --seed 7 --set world.target.k=2.0              # more life for the target
-python -m signalsearch run --config configs/vellore_hard.yaml --seed 7    # heat, more decoys, less life
 python -m signalsearch run --seed 7 --set theme.name=walle                # robot skin
 python -m signalsearch run --seed 7 --set world.weather.source=fixed      # offline weather
 ```
@@ -165,21 +163,18 @@ offline.
 
 ## Results
 
-### 1,350 missions
+### 450 missions
 
-Seeds 251-400 (castles never used while building the agent) × three fixed weathers × three life budgets.
-Rescue rate (95% interval):
+Seeds 251-400 (castles never used while building the agent) × three life budgets, Bangalore weather
+(26 C, 65% RH). Rescue rate (95% interval):
 
-| weather | k = 1.3 | k = 2.0 | k = 3.25 | all k |
+| | k = 1.3 | k = 2.0 | k = 3.25 | all k |
 |---|---|---|---|---|
-| Bangalore 26 C / 65% RH | 47% (40-55) | 59% (51-66) | 73% (66-80) | 60% |
-| humid 21.8 C / 80% RH | 39% (32-47) | 57% (49-64) | 73% (65-79) | 56% |
-| Vellore 36 C / 55% RH | 53% (45-60) | 63% (55-71) | 70% (62-77) | 62% |
-| **all weathers** | **46%** | **60%** | **72%** | **59.3%** (57-62) |
+| rescued | 47% (40-55) | 59% (51-66) | 73% (66-80) | **60%** |
 
 `k` scales the target's life: k = 1.3 gives her 1.3× the time a mission designer would expect a good
 rescue to take, so it is the hardest setting. Reproduce with
-`batch --seeds 251-400 --weathers bangalore,humid,vellore --set world.target.k=<k>`.
+`batch --seeds 251-400 --set world.weather.source=fixed --set world.target.k=<k>`.
 
 ### How the agent got here
 
@@ -199,7 +194,7 @@ Reproduce with `batch --seeds 1-20 --set world.target.k=<k> --set world.weather.
 
 At k = 1.3: 7 times the target died first (3 never localized, 4 localized but not confirmed in time) and 1
 battery ran out inside an accepted dash. 20 seeds is a small sample: k = 2.0 scoring below k = 1.3 here is
-seed-to-seed noise, and the 1,350-mission table above is the reliable estimate.
+seed-to-seed noise, and the 450-mission table above is the reliable estimate.
 
 What the runs show:
 
@@ -236,10 +231,10 @@ rescuer's spawn.
 allowance`, `life = round(k × T_expected)`, and `d = 1 / (1.15 × life)`. When her energy reaches 0 the
 mission ends.
 
-**Weather.** Fetched once from Open-Meteo (Bangalore by default, Vellore in `configs/vellore_hard.yaml`)
+**Weather.** Fetched once from Open-Meteo (Bangalore)
 and written into the resolved config. If the fetch fails, fixed values are used and the fallback is logged.
-Humidity and rain weaken thermal and shorten LIDAR. Ambient temperature sets thermal contrast: in Vellore's
-36 C heat, a dog at 38 C almost disappears.
+Humidity and rain weaken thermal and shorten LIDAR, and the ambient temperature sets thermal contrast:
+the hotter the day, the harder a 34 C person is to tell from the background.
 
 **Distress call.** Emitted 0-30 turns before t = 0. It gives a bearing from the rescuer's spawn to where the
 target was then (±25° noise) and a strength `1/(1+(d/30)²) × lognormal(0.25)`.
@@ -415,7 +410,7 @@ logged with all three scores.
 ## Repo layout
 
 ```
-configs/      default.yaml, vellore_hard.yaml, sample_mission.yaml, weather_{bangalore,humid,vellore}.yaml
+configs/      default.yaml, sample_mission.yaml, weather_bangalore.yaml
 signalsearch/
   common/     actions, observation, config, geometry (shared, truth-free)
   world/      mapgen, entities, target, weather, sensors_true, env
