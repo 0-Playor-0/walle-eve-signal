@@ -47,10 +47,28 @@ radar check the candidate, the camera (CV) confirms, and the knight steps in at 
 
 | | |
 |---|---|
-| ![start](docs/screenshots/01_start.png) **Turn 0.** The distress call gives a bearing cone; the agent knows nothing about the map yet. | ![search](docs/screenshots/02_search.png) **Searching.** The belief has narrowed to one room; the agent has mapped what it walked through and goes to check the candidate with radar first. |
-| ![cv](docs/screenshots/03_cv_confirm.png) **Confirming.** From a viewpoint with line of sight, the camera labels the target. | ![rescued](docs/screenshots/04_rescued.png) **Rescued** at turn 61; she had 116 turns of life in total. |
-| ![decoy](docs/screenshots/05_decoy_fire.png) **A decoy.** A brazier looked like a warm person to thermal; the camera labels it `fire`, and the belief moves on. | ![override](docs/screenshots/06_override.png) **Endgame override.** At 27% battery, going home now scores 0.06 and a lean dash 0.50, so the agent gambles. |
-| ![recharge](docs/screenshots/07_recharge.png) **Recharge on the way.** A hearth found during the dash refills the battery in one turn; she is rescued at turn 139. | |
+| ![start](docs/screenshots/01_start.png) **Turn 0.** The distress call gives a bearing cone: the cool glow is the belief, the solid and dashed outlines its 50% and 90% likely areas. The agent knows nothing about the map yet. | ![search](docs/screenshots/02_search.png) **Searching.** The belief has narrowed to one room; the agent has mapped what it walked through and pings it with radar (the green ring) before going in. |
+| ![cv](docs/screenshots/03_cv_confirm.png) **Confirming.** From a viewpoint with line of sight, the camera (its 4 cells outlined) labels the target. | ![rescued](docs/screenshots/04_rescued.png) **Rescued** at turn 61; she had 116 turns of life in total. |
+| ![decoy](docs/screenshots/05_decoy_fire.png) **A decoy.** A brazier looked like a warm person to thermal; the camera labels it `fire` (the highlighted receipt), and the belief moves on. | ![override](docs/screenshots/06_override.png) **Endgame override.** At 27% battery, going home now scores 0.06 and a lean dash 0.50, so the agent gambles. The banner has its own row under the battery and life bars. |
+| ![recharge](docs/screenshots/07_recharge.png) **Recharge on the way.** A hearth found during the dash refills the battery in one turn (the green timeline marker); she is rescued at turn 139. | |
+
+**Reading the viewer.**
+- **Agent's mind (left):**
+  - **Belief:** one cool teal glow. Brighter means more likely, and it is invisible below 1% of the peak. The solid
+    outline is the smallest area holding 50% of the belief, the dashed one 90%, and the white diamond is the most
+    likely cell with its probability.
+  - **Fog:** the dark blue is unknown ground, with a darker band where the map ends.
+  - **Scans:** each scan sends a ring out from the knight: thermal amber, radar green, LIDAR blue. What it finds
+    appears as the ring reaches it. The camera outlines the 4 cells it looks at.
+  - **Tracks:** circles coloured by what the agent thinks they are.
+- **Warm colours** (amber, orange, red) always mean heat and fire. The braziers and hearths on the truth side glow,
+  and the belief never uses these colours.
+- **Bottom bar:**
+  - **Battery and life bars:** the life bar is the agent's estimate of her remaining life, with its 10-90% band
+    shaded; the pink tick is the true value.
+  - **Timeline:** the whole mission, with markers for detections, camera labels, charges and overrides. Click it in
+    `replay` to jump.
+- **Legend:** `L` shows one.
 
 ---
 
@@ -132,9 +150,9 @@ offline.
 
 | Mode | Keys |
 |---|---|
-| `replay` | space play/pause, ←/→ step, +/- speed, `B` belief, `F` fog, `P` path, `T` truth, `M` full map / camera, `Q` quit |
-| `play --as rescuer` | arrows move, `Q`/`E` turn, `L` lidar, `R` radar, `T` thermal, `C` cv, `H` charge, space wait |
-| `play --as target` | arrows/WASD move the princess (she stays put if you press nothing), `P` pause |
+| `replay` | space play/pause, ←/→ step, +/- speed, click the timeline to jump, `B` belief, `F` fog, `P` path, `T` truth, `M` full map / camera, `L` legend, `Q` quit |
+| `play --as rescuer` | arrows move, `Q`/`E` turn, `L` lidar, `R` radar, `T` thermal, `C` cv, `H` charge, space wait, `G` legend |
+| `play --as target` | arrows/WASD move the princess (she stays put if you press nothing), `P` pause, `L` legend |
 
 ---
 
@@ -421,6 +439,8 @@ docs/         screenshots
 
 - Art: Kenney *Tiny Dungeon* and 0x72 *16x16 DungeonTileset II*, both CC0, downloaded separately. Braziers,
   hearths, dogs, armour and the robot skin are drawn procedurally.
+- Font: [Silkscreen](https://github.com/googlefonts/silkscreen) (The Silkscreen Project Authors), SIL Open Font License 1.1
+  (`assets/fonts/OFL.txt`), for titles and headings; numbers and logs use the system monospace font.
 - Weather: [Open-Meteo](https://open-meteo.com/).
 - macOS note: the pygame loop pumps events every frame, and OpenCV is not used (its bundled SDL2 conflicts
   with pygame's).
